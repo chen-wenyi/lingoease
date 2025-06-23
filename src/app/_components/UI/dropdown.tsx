@@ -10,7 +10,7 @@ export default function Dropdown() {
   // Function to close the dropdown
   const closeDropdown = () => {
     if (popoverRef.current && "hidePopover" in popoverRef.current) {
-      (popoverRef.current as any).hidePopover();
+      popoverRef.current.hidePopover();
     }
   };
 
