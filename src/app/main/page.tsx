@@ -1,5 +1,4 @@
 import Dropdown from "../_components/UI/dropdown";
-import Test from "../_components/UI/test";
 
 export default async function Main() {
   return (
@@ -35,7 +34,6 @@ export default async function Main() {
             {/* <Card /> */}
           </div>
         </div>
-        <Test />
       </div>
     </main>
   );

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Header from "~/components/header";
 import { api, HydrateClient } from "~/trpc/server";
 
 export default async function Home() {
@@ -8,16 +8,8 @@ export default async function Home() {
 
   return (
     <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center justify-center">
-        <div className="container flex flex-col items-center justify-center gap-6 px-4 py-16">
-          <div className="text-4xl font-bold">LingoEase</div>
-          <Link
-            href="/main"
-            className="rounded bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600"
-          >
-            to main
-          </Link>
-        </div>
+      <main className="flex min-h-screen flex-col items-center">
+        <Header />
       </main>
     </HydrateClient>
   );

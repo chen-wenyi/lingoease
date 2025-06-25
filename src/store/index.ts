@@ -4,7 +4,7 @@ import { immer } from "zustand/middleware/immer";
 import { createConfigSlice } from "./configSlice";
 import type { StoreState } from "./typing";
 
-export const useConfigStore = create<StoreState>()(
+export const useStore = create<StoreState>()(
   persist(
     immer((...args) => ({
       ...createConfigSlice(...args),
