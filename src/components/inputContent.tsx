@@ -45,7 +45,7 @@ export default function InputContent() {
         {!response ? (
           <div className="flex h-full w-full items-center justify-center px-2">
             <Textarea
-              className="h-full w-full resize-none"
+              className="h-full w-full touch-none resize-none"
               placeholder="Type your text here..."
               value={content}
               onChange={({ target }) => setContent(target.value)}
@@ -60,7 +60,7 @@ export default function InputContent() {
             <ResizablePanel defaultSize={20} minSize={20}>
               <div className="flex h-full items-center justify-center p-2">
                 <Textarea
-                  className="h-full w-full resize-none"
+                  className="h-full w-full touch-none resize-none"
                   placeholder="Type your text here..."
                   value={content}
                   onChange={({ target }) => setContent(target.value)}
@@ -73,7 +73,10 @@ export default function InputContent() {
               onTouchMove={(e) => e.preventDefault()}
               onTouchStart={(e) => e.stopPropagation()}
             >
-              <ResizableHandle className="" withHandle />
+              <ResizableHandle
+                className="before:absolute before:inset-0 before:-inset-y-4 before:h-full before:min-h-[40px] before:w-full before:content-['']"
+                withHandle
+              />
             </div>
             <ResizablePanel defaultSize={80} minSize={20}>
               <div className="flex h-full w-full p-2">
