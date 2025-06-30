@@ -59,7 +59,7 @@ export default function InputContent() {
             <ResizablePanel defaultSize={20} minSize={20}>
               <div className="flex h-full items-center justify-center p-2">
                 <Textarea
-                  className="h-full w-full touch-pan-y resize-none"
+                  className="h-full w-full touch-pan-y resize-none overscroll-none"
                   placeholder="Type your text here..."
                   value={content}
                   onChange={({ target }) => setContent(target.value)}
@@ -81,7 +81,7 @@ export default function InputContent() {
               <div className="flex h-full w-full p-2">
                 <div
                   onTouchMove={(e) => e.stopPropagation()}
-                  className="w-full touch-pan-y overflow-x-auto rounded-md border p-2 select-auto"
+                  className="w-full touch-pan-y overflow-x-auto overscroll-none rounded-md border p-2 select-auto"
                 >
                   {response}
                 </div>
