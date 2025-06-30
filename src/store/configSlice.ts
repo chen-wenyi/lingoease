@@ -7,7 +7,7 @@ export const createConfigSlice: StateCreator<
   [["zustand/immer", never]],
   [],
   ConfigSlice
-> = (set, get) => ({
+> = (set, _) => ({
   activeApiKeyId: "",
   apikeys: [],
   selectApiKey: (id: string) => {

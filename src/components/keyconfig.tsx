@@ -15,6 +15,7 @@ import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { FaEyeSlash, FaPaste } from "react-icons/fa";
 import { IoMdEye } from "react-icons/io";
+import { MdVpnKey } from "react-icons/md";
 import type { ApiKey } from "~/typings";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -43,11 +44,13 @@ export default function Keyconfig() {
   useEffect(() => {
     const selectedApiKey = apikeys.find((key) => key.id === activeApiKeyId);
     setCurrentApiKey(!selectedApiKey ? undefined : { ...selectedApiKey });
-  }, [activeApiKeyId, isOpen]);
+  }, [activeApiKeyId, isOpen, apikeys]);
 
   return (
     <Drawer onOpenChange={setIsOpen} open={isOpen}>
-      <DrawerTrigger>Key</DrawerTrigger>
+      <DrawerTrigger>
+        <MdVpnKey className="cursor-pointer" />
+      </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
           <DrawerTitle>OpenAI APIKey Setting</DrawerTitle>

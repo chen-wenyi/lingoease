@@ -1,9 +1,16 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { toast } from "sonner";
 import { getOpenAIResponse } from "~/actions";
 import { useStore } from "~/store";
 import { Button } from "./ui/button";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "./ui/resizable";
+import { Toaster } from "./ui/sonner";
 import { Textarea } from "./ui/textarea";
 
 export default function InputContent() {
@@ -19,35 +26,74 @@ export default function InputContent() {
   const handleResponse = () => {
     startTransition(async () => {
       if (apikey) {
-        const content = await getOpenAIResponse(apikey.value);
+        const { content, errMessage } = await getOpenAIResponse(apikey.value);
         startTransition(() => {
-          setResponse(content);
+          if (errMessage) {
+            toast.error(errMessage);
+          } else {
+            setResponse(content);
+          }
         });
       }
     });
   };
 
   return (
-    <div className="flex w-full flex-1 flex-col gap-4">
-      <Textarea
-        className="flex-1"
-        value={content}
-        onChange={({ target }) => setContent(target.value)}
-      />
-      <div className="flex-1">{response}</div>
-      <Button
-        disabled={!apikey || !content || isPending}
-        onClick={() => {
-          handleResponse();
-        }}
-        className="m-4"
-      >
-        {isPending ? (
-          <span className="loading loading-ring loading-md"></span>
+    <div className="flex w-full flex-1 flex-col">
+      <Toaster />
+      <div className="flex-1">
+        {!response ? (
+          <div className="flex h-full w-full items-center justify-center px-2">
+            <Textarea
+              className="h-full w-full resize-none"
+              placeholder="Type your text here..."
+              value={content}
+              onChange={({ target }) => setContent(target.value)}
+              draggable={true}
+            />
+          </div>
         ) : (
-          "Submit"
+          <ResizablePanelGroup
+            direction="vertical"
+            className="min-h-[calc(100vh-10rem)] border-none active:border-none"
+          >
+            <ResizablePanel defaultSize={20} minSize={20}>
+              <div className="flex h-full items-center justify-center p-2">
+                <Textarea
+                  className="h-full w-full resize-none"
+                  placeholder="Type your text here..."
+                  value={content}
+                  onChange={({ target }) => setContent(target.value)}
+                  draggable={true}
+                />
+              </div>
+            </ResizablePanel>
+            <ResizableHandle className="m-4" withHandle />
+            <ResizablePanel defaultSize={80} minSize={20}>
+              <div className="flex h-full w-full p-2">
+                <div className="w-full overflow-x-auto rounded-md border p-2">
+                  {response}
+                </div>
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
         )}
-      </Button>
+      </div>
+      <div className="flex h-16 w-full items-center justify-center">
+        <Button
+          disabled={!apikey || !content || isPending}
+          onClick={() => {
+            handleResponse();
+          }}
+          className="w-full"
+        >
+          {isPending ? (
+            <span className="loading loading-ring loading-md"></span>
+          ) : (
+            "Submit"
+          )}
+        </Button>
+      </div>
     </div>
   );
 }

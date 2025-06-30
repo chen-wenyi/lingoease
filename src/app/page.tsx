@@ -1,17 +1,15 @@
 import Header from "~/components/header";
 import InputContent from "~/components/inputContent";
-import { api, HydrateClient } from "~/trpc/server";
+import { HydrateClient } from "~/trpc/server";
 
 export default async function Home() {
-  const hello = await api.post.hello({ text: "from tRPC" });
-
-  void api.post.getLatest.prefetch();
-
   return (
     <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center px-4">
+      <main className="flex min-h-screen flex-col items-center">
         <Header />
-        <InputContent />
+        <div className="flex w-full flex-1 px-4">
+          <InputContent />
+        </div>
       </main>
     </HydrateClient>
   );
