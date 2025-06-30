@@ -127,7 +127,11 @@ function KeyDetails({ apiKey }: { apiKey?: PartialApiKey }) {
   const [hidden, setHidden] = useState(true);
   const hiddenValue = value ? value.replace(/./g, "*") : "";
 
-  const [shouldUpdate, setShouldUpdate] = useState(false);
+  const shouldUpdate =
+    value !== "" &&
+    label !== "" &&
+    (value !== apiKey?.value || label !== apiKey?.label);
+
   const addApiKey = useStore((state) => state.addApiKey);
   const selectApiKey = useStore((state) => state.selectApiKey);
   const removeApiKey = useStore((state) => state.removeApiKey);
@@ -138,25 +142,10 @@ function KeyDetails({ apiKey }: { apiKey?: PartialApiKey }) {
     setValue(apiKey?.value ?? "");
   }, [apiKey]);
 
-  const onBlur = () => {
-    if (
-      value &&
-      label &&
-      (value !== apiKey?.value || label !== apiKey?.label)
-    ) {
-      setShouldUpdate(true);
-    } else {
-      setShouldUpdate(false);
-    }
-  };
-
   const pasteApiKey = async () => {
     try {
       const clipboardText = await navigator.clipboard.readText();
       setValue(clipboardText.trim());
-      if (clipboardText !== apiKey?.value) {
-        setShouldUpdate(true);
-      }
     } catch (error) {
       console.error("Failed to read clipboard contents: ", error);
     }
@@ -173,8 +162,8 @@ function KeyDetails({ apiKey }: { apiKey?: PartialApiKey }) {
           placeholder="Label"
           value={label}
           onChange={(e) => setLabel(e.target.value)}
-          onClick={(e) => (e.target as HTMLInputElement).select()}
-          onBlur={onBlur}
+          onFocus={(e) => (e.target as HTMLInputElement).select()}
+          // onBlur={onBlur}
         />
       </div>
       <div className="grid w-full gap-3">
@@ -199,11 +188,11 @@ function KeyDetails({ apiKey }: { apiKey?: PartialApiKey }) {
           id="apikey"
           value={hidden ? hiddenValue : value}
           onChange={(e) => setValue(e.target.value)}
-          onClick={(e) => {
+          onFocus={(e) => {
             (e.target as HTMLTextAreaElement).select();
             setHidden(false);
           }}
-          onBlur={onBlur}
+          // onBlur={onBlur}
         />
       </div>
       <div className="mt-4 flex justify-end gap-2">
