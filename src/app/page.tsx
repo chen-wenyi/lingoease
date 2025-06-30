@@ -5,7 +5,7 @@ import { HydrateClient } from "~/trpc/server";
 export default async function Home() {
   return (
     <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center">
+      <main className="flex min-h-dvh touch-none flex-col items-center overscroll-none">
         <Header />
         <div className="flex w-full flex-1 px-4">
           <InputContent />
