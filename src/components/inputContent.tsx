@@ -45,11 +45,10 @@ export default function InputContent() {
         {!response ? (
           <div className="flex h-full w-full items-center justify-center px-2">
             <Textarea
-              className="h-full w-full touch-none resize-none"
+              className="h-full w-full resize-none"
               placeholder="Type your text here..."
               value={content}
               onChange={({ target }) => setContent(target.value)}
-              draggable={true}
             />
           </div>
         ) : (
@@ -60,11 +59,10 @@ export default function InputContent() {
             <ResizablePanel defaultSize={20} minSize={20}>
               <div className="flex h-full items-center justify-center p-2">
                 <Textarea
-                  className="h-full w-full touch-none resize-none"
+                  className="h-full w-full touch-pan-y resize-none"
                   placeholder="Type your text here..."
                   value={content}
                   onChange={({ target }) => setContent(target.value)}
-                  draggable={true}
                 />
               </div>
             </ResizablePanel>
@@ -80,7 +78,7 @@ export default function InputContent() {
             </div>
             <ResizablePanel defaultSize={80} minSize={20}>
               <div className="flex h-full w-full p-2">
-                <div className="w-full overflow-x-auto rounded-md border p-2">
+                <div className="w-full touch-pan-y overflow-x-auto rounded-md border p-2 select-auto">
                   {response}
                 </div>
               </div>
