@@ -1,4 +1,5 @@
 import Header from "~/components/header";
+import InputContent from "~/components/inputContent";
 import { api, HydrateClient } from "~/trpc/server";
 
 export default async function Home() {
@@ -8,8 +9,9 @@ export default async function Home() {
 
   return (
     <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center">
+      <main className="flex min-h-screen flex-col items-center px-4">
         <Header />
+        <InputContent />
       </main>
     </HydrateClient>
   );

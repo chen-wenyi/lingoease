@@ -13,6 +13,8 @@ import {
 
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
+import { FaEyeSlash, FaPaste } from "react-icons/fa";
+import { IoMdEye } from "react-icons/io";
 import type { ApiKey } from "~/typings";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -30,6 +32,7 @@ import { Textarea } from "./ui/textarea";
 type PartialApiKey = Omit<ApiKey, "id"> & Partial<Pick<ApiKey, "id">>;
 
 export default function Keyconfig() {
+  const [isOpen, setIsOpen] = useState(false);
   const activeApiKeyId = useStore((state) => state.activeApiKeyId);
   const apikeys = useStore((state) => state.apikeys);
   const selectedApiKey = apikeys.find((key) => key.id === activeApiKeyId);
@@ -40,10 +43,10 @@ export default function Keyconfig() {
   useEffect(() => {
     const selectedApiKey = apikeys.find((key) => key.id === activeApiKeyId);
     setCurrentApiKey(!selectedApiKey ? undefined : { ...selectedApiKey });
-  }, [activeApiKeyId]);
+  }, [activeApiKeyId, isOpen]);
 
   return (
-    <Drawer>
+    <Drawer onOpenChange={setIsOpen} open={isOpen}>
       <DrawerTrigger>Key</DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
@@ -121,6 +124,9 @@ function AddKey({
 function KeyDetails({ apiKey }: { apiKey?: PartialApiKey }) {
   const [label, setLabel] = useState(apiKey?.label ?? "");
   const [value, setValue] = useState(apiKey?.value ?? "");
+  const [hidden, setHidden] = useState(true);
+  const hiddenValue = value ? value.replace(/./g, "*") : "";
+
   const [shouldUpdate, setShouldUpdate] = useState(false);
   const addApiKey = useStore((state) => state.addApiKey);
   const selectApiKey = useStore((state) => state.selectApiKey);
@@ -133,7 +139,27 @@ function KeyDetails({ apiKey }: { apiKey?: PartialApiKey }) {
   }, [apiKey]);
 
   const onBlur = () => {
-    setShouldUpdate(apiKey?.label !== label || apiKey?.value !== value);
+    if (
+      value &&
+      label &&
+      (value !== apiKey?.value || label !== apiKey?.label)
+    ) {
+      setShouldUpdate(true);
+    } else {
+      setShouldUpdate(false);
+    }
+  };
+
+  const pasteApiKey = async () => {
+    try {
+      const clipboardText = await navigator.clipboard.readText();
+      setValue(clipboardText.trim());
+      if (clipboardText !== apiKey?.value) {
+        setShouldUpdate(true);
+      }
+    } catch (error) {
+      console.error("Failed to read clipboard contents: ", error);
+    }
   };
 
   return (
@@ -152,14 +178,31 @@ function KeyDetails({ apiKey }: { apiKey?: PartialApiKey }) {
         />
       </div>
       <div className="grid w-full gap-3">
-        <Label htmlFor="apikey">API Key</Label>
+        <Label htmlFor="">
+          API Key
+          <span className="flex gap-2">
+            <span
+              className="block cursor-pointer"
+              onClick={() => {
+                setHidden(!hidden);
+              }}
+            >
+              {!hidden ? <IoMdEye /> : <FaEyeSlash />}
+            </span>
+            <FaPaste className="cursor-pointer" onClick={pasteApiKey} />
+          </span>
+        </Label>
         <Textarea
+          className="h-[115px] font-mono text-xs"
           key={`apikey-${apiKey?.id}`}
           placeholder="Type your API Key here."
           id="apikey"
-          value={value}
+          value={hidden ? hiddenValue : value}
           onChange={(e) => setValue(e.target.value)}
-          onClick={(e) => (e.target as HTMLTextAreaElement).select()}
+          onClick={(e) => {
+            (e.target as HTMLTextAreaElement).select();
+            setHidden(false);
+          }}
           onBlur={onBlur}
         />
       </div>
