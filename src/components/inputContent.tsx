@@ -63,6 +63,7 @@ export default function InputContent() {
                   placeholder="Type your text here..."
                   value={content}
                   onChange={({ target }) => setContent(target.value)}
+                  onTouchMove={(e) => e.stopPropagation()}
                 />
               </div>
             </ResizablePanel>
@@ -78,7 +79,10 @@ export default function InputContent() {
             </div>
             <ResizablePanel defaultSize={80} minSize={20}>
               <div className="flex h-full w-full p-2">
-                <div className="w-full touch-pan-y overflow-x-auto rounded-md border p-2 select-auto">
+                <div
+                  onTouchMove={(e) => e.stopPropagation()}
+                  className="w-full touch-pan-y overflow-x-auto rounded-md border p-2 select-auto"
+                >
                   {response}
                 </div>
               </div>
