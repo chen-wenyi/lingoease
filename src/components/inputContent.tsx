@@ -55,6 +55,7 @@ export default function InputContent() {
               placeholder="Type your text here..."
               value={content}
               onChange={({ target }) => setContent(target.value)}
+              draggable={false}
             />
           </div>
         ) : (
@@ -69,6 +70,7 @@ export default function InputContent() {
                   className="h-full w-full touch-manipulation resize-none overscroll-none"
                   placeholder="Type your text here..."
                   value={content}
+                  draggable={false}
                 />
               </div>
             </ResizablePanel>
@@ -85,7 +87,7 @@ export default function InputContent() {
               <div className="flex h-full w-full p-2">
                 <div
                   onTouchStart={handleTouchStart}
-                  className="w-full touch-pan-y overflow-x-auto overscroll-none rounded-md border p-2 select-auto"
+                  className="w-full touch-manipulation overflow-x-auto overscroll-none rounded-md border p-2 select-text"
                 >
                   {response}
                 </div>
