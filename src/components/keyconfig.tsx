@@ -119,8 +119,8 @@ function AddKey({
 }
 
 function KeyDetails({ apiKey }: { apiKey?: PartialApiKey }) {
-  const [label, setLabel] = useState(apiKey?.label || "");
-  const [value, setValue] = useState(apiKey?.value || "");
+  const [label, setLabel] = useState(apiKey?.label ?? "");
+  const [value, setValue] = useState(apiKey?.value ?? "");
   const [shouldUpdate, setShouldUpdate] = useState(false);
   const addApiKey = useStore((state) => state.addApiKey);
   const selectApiKey = useStore((state) => state.selectApiKey);
@@ -128,8 +128,8 @@ function KeyDetails({ apiKey }: { apiKey?: PartialApiKey }) {
   const updateApiKey = useStore((state) => state.updateApiKey);
 
   useEffect(() => {
-    setLabel(apiKey?.label || "");
-    setValue(apiKey?.value || "");
+    setLabel(apiKey?.label ?? "");
+    setValue(apiKey?.value ?? "");
   }, [apiKey]);
 
   const onBlur = () => {
@@ -169,7 +169,7 @@ function KeyDetails({ apiKey }: { apiKey?: PartialApiKey }) {
             <Button
               variant="destructive"
               onClick={() => {
-                apiKey.id && removeApiKey(apiKey.id);
+                if (apiKey.id) removeApiKey(apiKey.id);
               }}
             >
               Delete
