@@ -55,7 +55,7 @@ export default function InputContent() {
         ) : (
           <ResizablePanelGroup
             direction="vertical"
-            className="min-h-[calc(100vh-10rem)] border-none active:border-none"
+            className="min-h-[calc(100dvh-10rem)] border-none active:border-none"
           >
             <ResizablePanel defaultSize={20} minSize={20}>
               <div className="flex h-full items-center justify-center p-2">
@@ -68,7 +68,13 @@ export default function InputContent() {
                 />
               </div>
             </ResizablePanel>
-            <ResizableHandle className="m-4" withHandle />
+            <div
+              className="my-2 touch-none px-2 select-none"
+              onTouchMove={(e) => e.preventDefault()}
+              onTouchStart={(e) => e.stopPropagation()}
+            >
+              <ResizableHandle className="" withHandle />
+            </div>
             <ResizablePanel defaultSize={80} minSize={20}>
               <div className="flex h-full w-full p-2">
                 <div className="w-full overflow-x-auto rounded-md border p-2">
@@ -89,8 +95,10 @@ export default function InputContent() {
         >
           {isPending ? (
             <span className="loading loading-ring loading-md"></span>
+          ) : !apikey ? (
+            "Please set your API Key"
           ) : (
-            "Submit"
+            "Simplify"
           )}
         </Button>
       </div>
