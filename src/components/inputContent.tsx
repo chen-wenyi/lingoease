@@ -38,6 +38,11 @@ export default function InputContent() {
     });
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+  };
+
   return (
     <div className="flex w-full flex-1 flex-col">
       <Toaster />
@@ -45,6 +50,7 @@ export default function InputContent() {
         {!response ? (
           <div className="flex h-full w-full items-center justify-center px-2">
             <Textarea
+              onTouchStart={handleTouchStart}
               className="h-full w-full resize-none"
               placeholder="Type your text here..."
               value={content}
@@ -59,13 +65,17 @@ export default function InputContent() {
             <ResizablePanel defaultSize={20} minSize={20}>
               <div className="flex h-full items-center justify-center p-2">
                 <Textarea
+                  onTouchStart={handleTouchStart}
                   className="h-full w-full touch-manipulation resize-none overscroll-none"
                   placeholder="Type your text here..."
                   value={content}
                 />
               </div>
             </ResizablePanel>
-            <div className="my-2 touch-manipulation px-2 select-none">
+            <div
+              onTouchStart={handleTouchStart}
+              className="my-2 touch-manipulation px-2 select-none"
+            >
               <ResizableHandle
                 className="before:absolute before:inset-0 before:-inset-y-4 before:h-full before:min-h-[40px] before:w-full before:content-['']"
                 withHandle
@@ -73,7 +83,10 @@ export default function InputContent() {
             </div>
             <ResizablePanel defaultSize={80} minSize={20}>
               <div className="flex h-full w-full p-2">
-                <div className="w-full touch-pan-y overflow-x-auto overscroll-none rounded-md border p-2 select-auto">
+                <div
+                  onTouchStart={handleTouchStart}
+                  className="w-full touch-pan-y overflow-x-auto overscroll-none rounded-md border p-2 select-auto"
+                >
                   {response}
                 </div>
               </div>

@@ -170,7 +170,7 @@ function KeyDetails({ apiKey }: { apiKey?: PartialApiKey }) {
         />
       </div>
       <div className="grid w-full gap-3">
-        <Label htmlFor="">
+        <Label>
           API Key
           <span className="flex gap-2">
             <span
