@@ -44,14 +44,14 @@ export default function InputContent() {
   };
 
   return (
-    <div className="flex w-full flex-1 flex-col">
+    <div className="flex w-full flex-1 touch-none flex-col overscroll-none">
       <Toaster />
       <div className="flex-1">
         {!response ? (
-          <div className="flex h-full w-full items-center justify-center px-2">
+          <div className="flex h-full w-full touch-none items-center justify-center px-2">
             <Textarea
               onTouchStart={handleTouchStart}
-              className="h-full w-full resize-none"
+              className="h-full w-full touch-manipulation resize-none"
               placeholder="Type your text here..."
               value={content}
               onChange={({ target }) => setContent(target.value)}
@@ -61,15 +61,16 @@ export default function InputContent() {
         ) : (
           <ResizablePanelGroup
             direction="vertical"
-            className="min-h-[calc(100dvh-10rem)] border-none active:border-none"
+            className="border-none active:border-none"
           >
             <ResizablePanel defaultSize={20} minSize={20}>
-              <div className="flex h-full items-center justify-center p-2">
+              <div className="flex h-full touch-none items-center justify-center p-2">
                 <Textarea
                   onTouchStart={handleTouchStart}
-                  className="h-full w-full touch-manipulation resize-none overscroll-none"
+                  className="h-full w-full touch-manipulation resize-none"
                   placeholder="Type your text here..."
                   value={content}
+                  onChange={({ target }) => setContent(target.value)}
                   draggable={false}
                 />
               </div>
@@ -96,7 +97,7 @@ export default function InputContent() {
           </ResizablePanelGroup>
         )}
       </div>
-      <div className="flex h-16 w-full items-center justify-center">
+      <div className="mb-4 flex h-16 w-full items-center justify-center px-2">
         <Button
           disabled={!apikey || !content || isPending}
           onClick={() => {
