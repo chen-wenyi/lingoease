@@ -38,20 +38,14 @@ export default function InputContent() {
     });
   };
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-  };
-
   return (
-    <div className="flex w-full flex-1 touch-none flex-col overscroll-none">
+    <div className="flex w-full flex-1 flex-col">
       <Toaster />
       <div className="flex-1">
         {!response ? (
-          <div className="flex h-full w-full touch-none items-center justify-center px-2">
+          <div className="flex h-full w-full items-center justify-center px-2">
             <Textarea
-              onTouchStart={handleTouchStart}
-              className="h-full w-full touch-manipulation resize-none"
+              className="h-full w-full resize-none"
               placeholder="Type your text here..."
               value={content}
               onChange={({ target }) => setContent(target.value)}
@@ -64,10 +58,9 @@ export default function InputContent() {
             className="border-none active:border-none"
           >
             <ResizablePanel defaultSize={20} minSize={20}>
-              <div className="flex h-full touch-none items-center justify-center p-2">
+              <div className="flex h-full items-center justify-center p-2">
                 <Textarea
-                  onTouchStart={handleTouchStart}
-                  className="h-full w-full touch-manipulation resize-none"
+                  className="h-full w-full resize-none"
                   placeholder="Type your text here..."
                   value={content}
                   onChange={({ target }) => setContent(target.value)}
@@ -76,7 +69,7 @@ export default function InputContent() {
               </div>
             </ResizablePanel>
             <div
-              onTouchStart={handleTouchStart}
+              onTouchStart={(e) => e.stopPropagation()}
               className="my-2 touch-manipulation px-2 select-none"
             >
               <ResizableHandle
@@ -86,10 +79,7 @@ export default function InputContent() {
             </div>
             <ResizablePanel defaultSize={80} minSize={20}>
               <div className="flex h-full w-full p-2">
-                <div
-                  onTouchStart={handleTouchStart}
-                  className="w-full touch-manipulation overflow-x-auto overscroll-none rounded-md border p-2 select-text"
-                >
+                <div className="w-full overflow-x-auto rounded-md border p-2 select-text">
                   {response}
                 </div>
               </div>
