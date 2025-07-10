@@ -262,8 +262,8 @@ function Instructions() {
         <AlertDialogHeader>
           <AlertDialogTitle>Why need a API Key?</AlertDialogTitle>
           <AlertDialogDescription>
-            An OpenAI API key is a unique key that allows application to access
-            and utilize OpenAI's models.
+            {`An OpenAI API key is a unique key that allows application to access
+            and utilize OpenAI's models.`}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -275,8 +275,8 @@ function Instructions() {
             >
               Create Api Key
             </a>
-            <AlertDialogCancel>Got it</AlertDialogCancel>
           </AlertDialogAction>
+          <AlertDialogCancel>Got it</AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
