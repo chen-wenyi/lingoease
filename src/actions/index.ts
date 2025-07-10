@@ -2,14 +2,14 @@
 
 import OpenAI, { APIError } from "openai";
 
-type OpenAIResponse = {
+type ChatCompletionResponse = {
   content: string;
   errMessage?: string;
 };
 
-export async function getOpenAIResponse(
+export async function getChatCompletion(
   apiKey: string,
-): Promise<OpenAIResponse> {
+): Promise<ChatCompletionResponse> {
   const client = new OpenAI({ apiKey });
   try {
     const completion = await client.chat.completions.create({

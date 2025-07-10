@@ -13,10 +13,21 @@ import {
 
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import { FaEyeSlash, FaPaste } from "react-icons/fa";
+import { FaEyeSlash, FaPaste, FaQuestionCircle } from "react-icons/fa";
 import { IoMdEye } from "react-icons/io";
 import { MdVpnKey } from "react-icons/md";
 import type { ApiKey } from "~/typings";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./ui/alert-dialog";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -53,7 +64,10 @@ export default function Keyconfig() {
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>OpenAI APIKey Setting</DrawerTitle>
+          <DrawerTitle className="flex items-center justify-center gap-2">
+            OpenAI APIKey Setting
+            <Instructions />
+          </DrawerTitle>
           <DrawerDescription></DrawerDescription>
         </DrawerHeader>
         <div className="px-8">
@@ -235,5 +249,36 @@ function KeyDetails({ apiKey }: { apiKey?: PartialApiKey }) {
         )}
       </div>
     </div>
+  );
+}
+
+function Instructions() {
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger>
+        <FaQuestionCircle className="cursor-pointer" />
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Why need a API Key?</AlertDialogTitle>
+          <AlertDialogDescription>
+            An OpenAI API key is a unique key that allows application to access
+            and utilize OpenAI's models.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogAction asChild>
+            <a
+              href="https://platform.openai.com/docs/quickstart/add-your-api-key"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Create Api Key
+            </a>
+            <AlertDialogCancel>Got it</AlertDialogCancel>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

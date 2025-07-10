@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { getOpenAIResponse } from "~/actions";
+import { getChatCompletion } from "~/actions";
 import { useStore } from "~/store";
 import { Button } from "./ui/button";
 import {
@@ -26,7 +26,7 @@ export default function InputContent() {
   const handleResponse = () => {
     startTransition(async () => {
       if (apikey) {
-        const { content, errMessage } = await getOpenAIResponse(apikey.value);
+        const { content, errMessage } = await getChatCompletion(apikey.value);
         startTransition(() => {
           if (errMessage) {
             toast.error(errMessage);
