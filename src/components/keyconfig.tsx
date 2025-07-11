@@ -103,10 +103,14 @@ function KeySelector() {
   const currentStep = useStore((state) => state.currentStep);
   const updateCurrentStep = useStore((state) => state.updateCurrentStep);
 
-  const applyApiKey = (key: string) => {
-    selectApiKey(key);
-    if (currentStep === 0) {
-      updateCurrentStep(1);
+  const applyApiKey = (id: string) => {
+    selectApiKey(id);
+    const activeApiKey = apikeys.find((key) => key.id === id);
+    if (activeApiKey?.status === "valid") {
+      updateCurrentStep(currentStep === 0 ? 1 : currentStep);
+    } else if (activeApiKey?.status === "invalid") {
+      updateCurrentStep(0);
+      toast.error("Current API Key is invalid. Please check.");
     }
   };
 
@@ -387,7 +391,7 @@ function Instructions() {
 }
 
 function checkDisabledStatus(label: string, value: string, status: string) {
-  return !label || !value; // || ["invalid", "pending"].includes(status)
+  return !label || !value || ["invalid", "pending"].includes(status);
 }
 
 function APIKeyValidity({
