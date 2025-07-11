@@ -1,14 +1,19 @@
 "use client";
 
+import { useEffect } from "react";
 import { FaCheck } from "react-icons/fa";
+import { toast } from "sonner";
+import { validateOpenAIAPIKey } from "~/actions/keyValidation";
 import { useStore } from "~/store";
 import AudioVideoUpload from "./audioAudioUpload";
 import Keyconfig from "./keyconfig";
 import TextUpload from "./textUpload";
+import { Toaster } from "./ui/sonner";
 
 export default function StepIndicator() {
   const currentStep = useStore((state) => state.currentStep);
   const selectedContentType = useStore((state) => state.uploadContentType);
+  useAPIKeysValidation();
 
   const stepInfo = [
     {
@@ -43,6 +48,7 @@ export default function StepIndicator() {
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center">
+      <Toaster />
       <ul className="steps steps-vertical">
         {stepInfo.map((info, index) => (
           <li key={index} className={getStepClass(info.status)}>
@@ -85,4 +91,26 @@ function getStepStatus(currentStep: number, stepIndex: number) {
     return "inprogress";
   }
   return "pending";
+}
+
+function useAPIKeysValidation() {
+  const apiKeys = useStore((state) => state.apikeys);
+  const activeApiKeyId = useStore((state) => state.activeApiKeyId);
+  const activeApiKey = apiKeys.find((key) => key.id === activeApiKeyId);
+  const updateApiKeyStatus = useStore((state) => state.updateApiKeyStatus);
+  const updateCurrentStep = useStore((state) => state.updateCurrentStep);
+
+  useEffect(() => {
+    if (activeApiKey && activeApiKey.status === "pending") {
+      void validateOpenAIAPIKey(activeApiKey.value).then((isValid) => {
+        updateApiKeyStatus(activeApiKeyId, isValid ? "valid" : "invalid");
+        if (isValid) {
+          updateCurrentStep(1);
+        } else {
+          updateCurrentStep(0);
+          toast.error("Current API Key is invalid. Please check.");
+        }
+      });
+    }
+  }, [activeApiKey, activeApiKeyId, updateApiKeyStatus, updateCurrentStep]);
 }

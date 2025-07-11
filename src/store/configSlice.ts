@@ -12,12 +12,12 @@ export const createConfigSlice: StateCreator<
   apikeys: [],
   currentStep: 0,
   uploadContentType: "audioVideo",
-  selectApiKey: (id: string) => {
+  selectApiKey: (id) => {
     set((state) => {
       state.activeApiKeyId = id;
     });
   },
-  addApiKey: (label: string, value: string) => {
+  addApiKey: (label, value) => {
     const id = uuidv4();
     set((state) => {
       state.apikeys.push({
@@ -29,7 +29,7 @@ export const createConfigSlice: StateCreator<
     });
     return id;
   },
-  removeApiKey: (id: string) => {
+  removeApiKey: (id) => {
     set((state) => {
       state.apikeys = state.apikeys.filter((key) => key.id !== id);
       if (state.activeApiKeyId === id) {
@@ -37,26 +37,25 @@ export const createConfigSlice: StateCreator<
       }
     });
   },
-  updateApiKey: (id: string, label: string, value: string) => {
+  updateApiKey: (key) => {
     set((state) => {
-      const apikey = state.apikeys.find((key) => key.id === id);
-      if (apikey) {
-        apikey.label = label;
-        apikey.value = value;
-      }
+      state.apikeys = state.apikeys.map((k) => {
+        if (k.id !== key.id) return k;
+        return key;
+      });
     });
   },
-  updateCurrentStep: (step: 0 | 1 | 2 | 3) => {
+  updateCurrentStep: (step) => {
     set((state) => {
       state.currentStep = step;
     });
   },
-  updateUploadContentType: (type: "audioVideo" | "text") => {
+  updateUploadContentType: (type) => {
     set((state) => {
       state.uploadContentType = type;
     });
   },
-  updateApiKeyStatus: (id: string, status: "valid" | "invalid" | "pending") => {
+  updateApiKeyStatus: (id, status) => {
     set((state) => {
       const apikey = state.apikeys.find((key) => key.id === id);
       if (apikey) {

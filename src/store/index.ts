@@ -21,11 +21,15 @@ export const useStore = create<StoreState>()(
         }
 
         const typedPersistedState = persistedState as Partial<StoreState>;
-
         return {
           ...currentState,
           ...typedPersistedState,
-          currentStep: typedPersistedState.activeApiKeyId ? 1 : 0,
+          // currentStep: typedPersistedState.activeApiKeyId ? 1 : 0,
+          apikeys:
+            typedPersistedState.apikeys?.map((key) => ({
+              ...key,
+              status: "pending",
+            })) ?? [],
         };
       },
     },

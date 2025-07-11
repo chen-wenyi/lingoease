@@ -11,12 +11,14 @@ import {
   DrawerTrigger,
 } from "./ui/drawer";
 
+import clsx from "clsx";
 import dayjs from "dayjs";
 import { useEffect, useState, useTransition } from "react";
 import { BiSolidError } from "react-icons/bi";
 import { FaEyeSlash, FaPaste, FaQuestionCircle } from "react-icons/fa";
 import { GrValidate } from "react-icons/gr";
 import { IoMdEye } from "react-icons/io";
+import { toast } from "sonner";
 import { validateOpenAIAPIKey } from "~/actions/keyValidation";
 import type { ApiKey } from "~/typings";
 import {
@@ -41,6 +43,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Separator } from "./ui/separator";
+import { Toaster } from "./ui/sonner";
 import { Textarea } from "./ui/textarea";
 
 type PartialApiKey = Omit<ApiKey, "id"> & Partial<Pick<ApiKey, "id">>;
@@ -182,7 +185,7 @@ function KeyDetails({
       setStatus("pending");
       return;
     }
-    if (apiKey?.status === "valid" && !shouldUpdate) {
+    if (status === "valid" && !shouldUpdate) {
       return;
     }
     void validateApiKey(value);
@@ -192,6 +195,9 @@ function KeyDetails({
     setStatus("pending");
     startTransition(async () => {
       const isValid = await validateOpenAIAPIKey(value);
+      if (!isValid) {
+        toast.error("Invalid API Key. Please check your key and try again.");
+      }
       startTransition(() => {
         setStatus(isValid ? "valid" : "invalid");
       });
@@ -222,122 +228,128 @@ function KeyDetails({
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="grid w-full max-w-sm items-center gap-3">
-        <Label htmlFor="label">Label</Label>
-        <Input
-          key={`label-${apiKey?.id}`}
-          type="text"
-          id="label"
-          placeholder="Label"
-          value={label}
-          onChange={(e) => setLabel(e.target.value)}
-          onFocus={(e) => (e.target as HTMLInputElement).select()}
-        />
-      </div>
-      <div className="grid w-full gap-3">
-        <Label>
-          API Key
-          <span className="flex gap-2">
-            <span
-              className="block cursor-pointer"
+    <div>
+      <Toaster />
+      <div className="flex flex-col gap-4">
+        <div className="grid w-full max-w-sm items-center gap-3">
+          <Label htmlFor="label">Label</Label>
+          <Input
+            key={`label-${apiKey?.id}`}
+            type="text"
+            id="label"
+            placeholder="Label"
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
+            onFocus={(e) => (e.target as HTMLInputElement).select()}
+          />
+        </div>
+        <div className="grid w-full gap-3">
+          <Label className="flex items-center" htmlFor="">
+            API Key
+            <APIKeyValidity status={status} />
+          </Label>
+          <Textarea
+            className={clsx("h-[115px] font-mono text-xs", {
+              "border-red-500": status === "invalid",
+            })}
+            key={`apikey-${apiKey?.id}`}
+            placeholder="Type your API Key here."
+            id="apikey"
+            value={hidden ? hiddenValue : value}
+            onChange={(e) => setValue(e.target.value)}
+            onFocus={(e) => {
+              (e.target as HTMLTextAreaElement).select();
+              setHidden(false);
+            }}
+            onBlur={tryValidateApiKey}
+          />
+          <div className="flex gap-2">
+            <div
+              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border-1 border-gray-300"
               onClick={() => {
                 setHidden(!hidden);
               }}
             >
               {!hidden ? <IoMdEye /> : <FaEyeSlash />}
-            </span>
-            <FaPaste className="cursor-pointer" onClick={pasteApiKey} />
-            <APIKeyValidity status={status} />
-          </span>
-        </Label>
-        <Textarea
-          className="h-[115px] font-mono text-xs"
-          key={`apikey-${apiKey?.id}`}
-          placeholder="Type your API Key here."
-          id="apikey"
-          value={hidden ? hiddenValue : value}
-          onChange={(e) => setValue(e.target.value)}
-          onFocus={(e) => {
-            (e.target as HTMLTextAreaElement).select();
-            setHidden(false);
-          }}
-          onBlur={tryValidateApiKey}
-        />
-      </div>
-      <div className="mt-4 flex justify-end gap-2">
-        {apiKey?.id ? (
-          <>
-            <Button
-              variant="destructive"
-              onClick={() => {
-                if (apiKey.id) {
-                  removeApiKey(apiKey.id);
-                  updateCurrentStep(0);
-                }
-              }}
+            </div>
+            <div
+              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border-1 border-gray-300"
+              onClick={pasteApiKey}
             >
-              Delete
-            </Button>
-            <div className="w-30">
+              <FaPaste />
+            </div>
+          </div>
+        </div>
+        <div className="mt-4 flex justify-end gap-2">
+          {apiKey?.id ? (
+            <>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  if (apiKey.id) {
+                    removeApiKey(apiKey.id);
+                    updateCurrentStep(0);
+                  }
+                }}
+              >
+                Delete
+              </Button>
+              <div className="w-30">
+                {isValidating ? (
+                  <Button className="w-full" disabled>
+                    Validating...
+                  </Button>
+                ) : (
+                  <Button
+                    className="w-full"
+                    disabled={
+                      !shouldUpdate || ["invalid", "pending"].includes(status)
+                    }
+                    onClick={() => {
+                      if (label && value && apiKey.id) {
+                        updateApiKey({ id: apiKey.id, label, value, status });
+                      }
+                    }}
+                  >
+                    Update
+                  </Button>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="flex gap-2">
+              <Button
+                disabled={checkDisabledStatus(label, value, status)}
+                onClick={() => {
+                  if (label && value) {
+                    addApiKey(label, value);
+                  }
+                }}
+              >
+                Add
+              </Button>
               {isValidating ? (
-                <Button className="w-full" disabled>
+                <Button className="w-30" disabled>
                   Validating...
                 </Button>
               ) : (
                 <Button
-                  className="w-full"
-                  disabled={
-                    !shouldUpdate || ["invalid", "pending"].includes(status)
-                  }
+                  className="w-30"
+                  disabled={checkDisabledStatus(label, value, status)}
                   onClick={() => {
-                    if (label && value && apiKey.id) {
-                      updateApiKey(apiKey.id, label, value);
+                    if (label && value) {
+                      const id = addApiKey(label, value);
+                      applyApiKey(id);
+                      closeDrawer();
                     }
                   }}
                 >
-                  Update
+                  Add & Apply
                 </Button>
               )}
             </div>
-          </>
-        ) : (
-          <div className="flex gap-2">
-            <Button
-              disabled={
-                !label || !value || ["invalid", "pending"].includes(status)
-              }
-              onClick={() => {
-                if (label && value) {
-                  addApiKey(label, value);
-                }
-              }}
-            >
-              Add
-            </Button>
-            {isValidating ? (
-              <Button className="w-30" disabled>
-                Validating...
-              </Button>
-            ) : (
-              <Button
-                className="w-30"
-                disabled={
-                  !label || !value || ["invalid", "pending"].includes(status)
-                }
-                onClick={() => {
-                  if (label && value) {
-                    const id = addApiKey(label, value);
-                    applyApiKey(id);
-                    closeDrawer();
-                  }
-                }}
-              >
-                Add & Apply
-              </Button>
-            )}
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
@@ -372,6 +384,10 @@ function Instructions() {
       </AlertDialogContent>
     </AlertDialog>
   );
+}
+
+function checkDisabledStatus(label: string, value: string, status: string) {
+  return !label || !value; // || ["invalid", "pending"].includes(status)
 }
 
 function APIKeyValidity({
