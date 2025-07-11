@@ -15,7 +15,6 @@ import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { FaEyeSlash, FaPaste, FaQuestionCircle } from "react-icons/fa";
 import { IoMdEye } from "react-icons/io";
-import { MdVpnKey } from "react-icons/md";
 import type { ApiKey } from "~/typings";
 import {
   AlertDialog,
@@ -43,7 +42,7 @@ import { Textarea } from "./ui/textarea";
 
 type PartialApiKey = Omit<ApiKey, "id"> & Partial<Pick<ApiKey, "id">>;
 
-export default function Keyconfig() {
+export default function Keyconfig({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const activeApiKeyId = useStore((state) => state.activeApiKeyId);
   const apikeys = useStore((state) => state.apikeys);
@@ -59,8 +58,8 @@ export default function Keyconfig() {
 
   return (
     <Drawer onOpenChange={setIsOpen} open={isOpen}>
-      <DrawerTrigger>
-        <MdVpnKey className="cursor-pointer" />
+      <DrawerTrigger className="cursor-pointer" asChild>
+        {children}
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
@@ -97,8 +96,18 @@ function KeySelector() {
   const apikeys = useStore((state) => state.apikeys);
   const activeApiKeyId = useStore((state) => state.activeApiKeyId);
   const selectApiKey = useStore((state) => state.selectApiKey);
+  const currentStep = useStore((state) => state.currentStep);
+  const updateCurrentStep = useStore((state) => state.updateCurrentStep);
+
+  const applyApiKey = (key: string) => {
+    selectApiKey(key);
+    if (currentStep === 0) {
+      updateCurrentStep(1);
+    }
+  };
+
   return (
-    <Select value={activeApiKeyId} onValueChange={selectApiKey}>
+    <Select value={activeApiKeyId} onValueChange={applyApiKey}>
       <SelectTrigger className="w-48 overflow-hidden sm:w-full">
         <SelectValue placeholder="Select API Key" />
       </SelectTrigger>
@@ -153,6 +162,16 @@ function KeyDetails({ apiKey }: { apiKey?: PartialApiKey }) {
   const selectApiKey = useStore((state) => state.selectApiKey);
   const removeApiKey = useStore((state) => state.removeApiKey);
   const updateApiKey = useStore((state) => state.updateApiKey);
+
+  const currentStep = useStore((state) => state.currentStep);
+  const updateCurrentStep = useStore((state) => state.updateCurrentStep);
+
+  const applyApiKey = (key: string) => {
+    selectApiKey(key);
+    if (currentStep === 0) {
+      updateCurrentStep(1);
+    }
+  };
 
   useEffect(() => {
     setLabel(apiKey?.label ?? "");
@@ -218,7 +237,10 @@ function KeyDetails({ apiKey }: { apiKey?: PartialApiKey }) {
             <Button
               variant="destructive"
               onClick={() => {
-                if (apiKey.id) removeApiKey(apiKey.id);
+                if (apiKey.id) {
+                  removeApiKey(apiKey.id);
+                  updateCurrentStep(0);
+                }
               }}
             >
               Delete
@@ -240,7 +262,7 @@ function KeyDetails({ apiKey }: { apiKey?: PartialApiKey }) {
             onClick={() => {
               if (label && value) {
                 const id = addApiKey(label, value);
-                selectApiKey(id);
+                applyApiKey(id);
               }
             }}
           >

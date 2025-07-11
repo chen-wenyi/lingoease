@@ -1,16 +1,13 @@
+import Footer from "~/components/footer";
 import Header from "~/components/header";
-import InputContent from "~/components/inputContent";
-import { HydrateClient } from "~/trpc/server";
+import StepIndicator from "~/components/stepIndicator";
 
 export default async function Home() {
   return (
-    <HydrateClient>
-      <main className="flex min-h-dvh touch-none flex-col items-center overscroll-none select-none">
-        <Header />
-        <div className="flex w-full flex-1 px-4">
-          <InputContent />
-        </div>
-      </main>
-    </HydrateClient>
+    <main className="flex h-dvh touch-none flex-col items-center overscroll-none select-none">
+      <Header />
+      <StepIndicator />
+      <Footer />
+    </main>
   );
 }

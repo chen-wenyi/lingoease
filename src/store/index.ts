@@ -9,6 +9,25 @@ export const useStore = create<StoreState>()(
     immer((...args) => ({
       ...createConfigSlice(...args),
     })),
-    { name: "lingoease-store" },
+    {
+      name: "lingoease-store",
+      partialize: (state) => ({
+        activeApiKeyId: state.activeApiKeyId,
+        apikeys: state.apikeys,
+      }),
+      merge: (persistedState, currentState) => {
+        if (!persistedState || typeof persistedState !== "object") {
+          return currentState;
+        }
+
+        const typedPersistedState = persistedState as Partial<StoreState>;
+
+        return {
+          ...currentState,
+          ...typedPersistedState,
+          currentStep: typedPersistedState.activeApiKeyId ? 1 : 0,
+        };
+      },
+    },
   ),
 );

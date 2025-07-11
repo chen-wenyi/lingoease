@@ -10,6 +10,8 @@ export const createConfigSlice: StateCreator<
 > = (set, _) => ({
   activeApiKeyId: "",
   apikeys: [],
+  currentStep: 0,
+  uploadContentType: "audioVideo",
   selectApiKey: (id: string) => {
     set((state) => {
       state.activeApiKeyId = id;
@@ -41,6 +43,16 @@ export const createConfigSlice: StateCreator<
         apikey.label = label;
         apikey.value = value;
       }
+    });
+  },
+  updateCurrentStep: (step: 0 | 1 | 2 | 3) => {
+    set((state) => {
+      state.currentStep = step;
+    });
+  },
+  updateUploadContentType: (type: "audioVideo" | "text") => {
+    set((state) => {
+      state.uploadContentType = type;
     });
   },
 });
