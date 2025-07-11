@@ -20,17 +20,17 @@ export default function Upload() {
   // );
 
   return (
-    <div className="flex w-full flex-col items-center justify-center gap-4">
-      <SwapContentType />
+    <div className="flex w-full items-center justify-center gap-4">
       {selectedContentType === "audioVideo" ? (
         <AudioVideoUpload>
-          <Button className="w-full">Upload Audio/Video</Button>
+          <Button className="h-12 flex-1">Upload Audio/Video</Button>
         </AudioVideoUpload>
       ) : (
         <TextUpload>
-          <Button className="w-full">Upload Text</Button>
+          <Button className="h-12 flex-1">Upload Text</Button>
         </TextUpload>
       )}
+      <SwapContentType />
     </div>
   );
 }

@@ -21,7 +21,7 @@ export default function Footer() {
 
   return (
     <div className="flex w-full flex-1 flex-col items-center justify-end">
-      <div className="mb-6 w-full px-4">{renederStepContent()}</div>
+      <div className="mb-6 w-full px-6">{renederStepContent()}</div>
     </div>
   );
 }
@@ -29,7 +29,7 @@ export default function Footer() {
 function SetAPIKey() {
   return (
     <Keyconfig>
-      <Button className="w-full">Set API Key</Button>
+      <Button className="h-12 w-full">Set API Key</Button>
     </Keyconfig>
   );
 }
