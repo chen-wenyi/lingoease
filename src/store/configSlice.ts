@@ -24,6 +24,7 @@ export const createConfigSlice: StateCreator<
         id,
         label,
         value,
+        status: "valid",
       });
     });
     return id;
@@ -53,6 +54,14 @@ export const createConfigSlice: StateCreator<
   updateUploadContentType: (type: "audioVideo" | "text") => {
     set((state) => {
       state.uploadContentType = type;
+    });
+  },
+  updateApiKeyStatus: (id: string, status: "valid" | "invalid" | "pending") => {
+    set((state) => {
+      const apikey = state.apikeys.find((key) => key.id === id);
+      if (apikey) {
+        apikey.status = status;
+      }
     });
   },
 });

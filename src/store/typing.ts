@@ -11,6 +11,10 @@ export type ConfigSlice = {
   updateApiKey: (id: string, label: string, value: string) => void;
   updateCurrentStep: (step: 0 | 1 | 2 | 3) => void;
   updateUploadContentType: (type: "audioVideo" | "text") => void;
+  updateApiKeyStatus: (
+    id: string,
+    status: "valid" | "invalid" | "pending",
+  ) => void;
 };
 
 export type StoreState = ConfigSlice;

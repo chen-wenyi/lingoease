@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { getChatCompletion } from "~/actions";
+import { getChatCompletion } from "~/actions/chatCompletion";
 import { useStore } from "~/store";
 import { Button } from "./ui/button";
 import {

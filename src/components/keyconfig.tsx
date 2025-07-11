@@ -12,9 +12,12 @@ import {
 } from "./ui/drawer";
 
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { BiSolidError } from "react-icons/bi";
 import { FaEyeSlash, FaPaste, FaQuestionCircle } from "react-icons/fa";
+import { GrValidate } from "react-icons/gr";
 import { IoMdEye } from "react-icons/io";
+import { validateOpenAIAPIKey } from "~/actions/keyValidation";
 import type { ApiKey } from "~/typings";
 import {
   AlertDialog,
@@ -84,12 +87,7 @@ export default function Keyconfig({ children }: { children: React.ReactNode }) {
             />
           </div>
         </div>
-        <DrawerFooter>
-          {/* <Button>Submit</Button>
-          <DrawerClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </DrawerClose> */}
-        </DrawerFooter>
+        <DrawerFooter></DrawerFooter>
       </DrawerContent>
     </Drawer>
   );
@@ -142,6 +140,7 @@ function AddKey({
         setCurrentApiKey({
           label: `New API Key(${dayjs().format("DD/MM/YY HH:mm:ss")})`,
           value: "",
+          status: "pending",
         });
       }}
     >
@@ -159,6 +158,7 @@ function KeyDetails({
 }) {
   const [label, setLabel] = useState(apiKey?.label ?? "");
   const [value, setValue] = useState(apiKey?.value ?? "");
+  const [status, setStatus] = useState(apiKey?.status ?? "pending");
   const [hidden, setHidden] = useState(true);
   const hiddenValue = value ? value.replace(/./g, "*") : "";
 
@@ -175,6 +175,29 @@ function KeyDetails({
   const currentStep = useStore((state) => state.currentStep);
   const updateCurrentStep = useStore((state) => state.updateCurrentStep);
 
+  const [isValidating, startTransition] = useTransition();
+
+  const tryValidateApiKey = async () => {
+    if (!value) {
+      setStatus("pending");
+      return;
+    }
+    if (apiKey?.status === "valid" && !shouldUpdate) {
+      return;
+    }
+    void validateApiKey(value);
+  };
+
+  const validateApiKey = async (value: string) => {
+    setStatus("pending");
+    startTransition(async () => {
+      const isValid = await validateOpenAIAPIKey(value);
+      startTransition(() => {
+        setStatus(isValid ? "valid" : "invalid");
+      });
+    });
+  };
+
   const applyApiKey = (key: string) => {
     selectApiKey(key);
     if (currentStep === 0) {
@@ -185,12 +208,14 @@ function KeyDetails({
   useEffect(() => {
     setLabel(apiKey?.label ?? "");
     setValue(apiKey?.value ?? "");
+    setStatus(apiKey?.status ?? "pending");
   }, [apiKey]);
 
   const pasteApiKey = async () => {
     try {
       const clipboardText = await navigator.clipboard.readText();
       setValue(clipboardText.trim());
+      void validateApiKey(clipboardText.trim());
     } catch (error) {
       console.error("Failed to read clipboard contents: ", error);
     }
@@ -208,7 +233,6 @@ function KeyDetails({
           value={label}
           onChange={(e) => setLabel(e.target.value)}
           onFocus={(e) => (e.target as HTMLInputElement).select()}
-          // onBlur={onBlur}
         />
       </div>
       <div className="grid w-full gap-3">
@@ -224,6 +248,7 @@ function KeyDetails({
               {!hidden ? <IoMdEye /> : <FaEyeSlash />}
             </span>
             <FaPaste className="cursor-pointer" onClick={pasteApiKey} />
+            <APIKeyValidity status={status} />
           </span>
         </Label>
         <Textarea
@@ -237,7 +262,7 @@ function KeyDetails({
             (e.target as HTMLTextAreaElement).select();
             setHidden(false);
           }}
-          // onBlur={onBlur}
+          onBlur={tryValidateApiKey}
         />
       </div>
       <div className="mt-4 flex justify-end gap-2">
@@ -254,21 +279,34 @@ function KeyDetails({
             >
               Delete
             </Button>
-            <Button
-              disabled={!shouldUpdate}
-              onClick={() => {
-                if (label && value && apiKey.id) {
-                  updateApiKey(apiKey.id, label, value);
-                }
-              }}
-            >
-              Update
-            </Button>
+            <div className="w-30">
+              {isValidating ? (
+                <Button className="w-full" disabled>
+                  Validating...
+                </Button>
+              ) : (
+                <Button
+                  className="w-full"
+                  disabled={
+                    !shouldUpdate || ["invalid", "pending"].includes(status)
+                  }
+                  onClick={() => {
+                    if (label && value && apiKey.id) {
+                      updateApiKey(apiKey.id, label, value);
+                    }
+                  }}
+                >
+                  Update
+                </Button>
+              )}
+            </div>
           </>
         ) : (
           <div className="flex gap-2">
             <Button
-              disabled={!label || !value}
+              disabled={
+                !label || !value || ["invalid", "pending"].includes(status)
+              }
               onClick={() => {
                 if (label && value) {
                   addApiKey(label, value);
@@ -277,18 +315,27 @@ function KeyDetails({
             >
               Add
             </Button>
-            <Button
-              disabled={!label || !value}
-              onClick={() => {
-                if (label && value) {
-                  const id = addApiKey(label, value);
-                  applyApiKey(id);
-                  closeDrawer();
+            {isValidating ? (
+              <Button className="w-30" disabled>
+                Validating...
+              </Button>
+            ) : (
+              <Button
+                className="w-30"
+                disabled={
+                  !label || !value || ["invalid", "pending"].includes(status)
                 }
-              }}
-            >
-              Add & Apply
-            </Button>
+                onClick={() => {
+                  if (label && value) {
+                    const id = addApiKey(label, value);
+                    applyApiKey(id);
+                    closeDrawer();
+                  }
+                }}
+              >
+                Add & Apply
+              </Button>
+            )}
           </div>
         )}
       </div>
@@ -324,5 +371,29 @@ function Instructions() {
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+  );
+}
+
+function APIKeyValidity({
+  status,
+}: {
+  status: "valid" | "invalid" | "pending";
+}) {
+  return (
+    <div>
+      {status === "valid" ? (
+        <div className="tooltip" data-tip="Valid API Key">
+          <GrValidate className="text-green-600" />
+        </div>
+      ) : status === "invalid" ? (
+        <div className="tooltip" data-tip="Invalid API Key">
+          <BiSolidError className="text-red-600" />
+        </div>
+      ) : (
+        <div className="tooltip" data-tip="Validation Pending...">
+          <GrValidate className="opacity-35" />
+        </div>
+      )}
+    </div>
   );
 }
