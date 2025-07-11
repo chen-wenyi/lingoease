@@ -1,4 +1,3 @@
-import { IoIosSync } from "react-icons/io";
 import { LuFileText } from "react-icons/lu";
 import { PiFileAudioBold } from "react-icons/pi";
 import { useStore } from "~/store";
@@ -20,7 +19,9 @@ export default function Upload() {
   // );
 
   return (
-    <div className="flex w-full items-center justify-center gap-4">
+    <div className="flex w-full items-center justify-center gap-2">
+      <SwapContentType />
+
       {selectedContentType === "audioVideo" ? (
         <AudioVideoUpload>
           <Button className="h-12 flex-1">Upload Audio/Video</Button>
@@ -30,7 +31,6 @@ export default function Upload() {
           <Button className="h-12 flex-1">Upload Text</Button>
         </TextUpload>
       )}
-      <SwapContentType />
     </div>
   );
 }
@@ -48,8 +48,7 @@ function SwapContentType() {
   };
 
   return (
-    <div className="relative flex h-12 w-12 items-center justify-center">
-      <IoIosSync className="absolute text-6xl" />
+    <div className="flex h-11 w-11 items-center justify-center rounded-md border-2 border-dashed border-gray-400">
       <label className="swap swap-rotate">
         <input
           type="checkbox"
