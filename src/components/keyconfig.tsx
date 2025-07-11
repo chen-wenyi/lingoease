@@ -78,7 +78,10 @@ export default function Keyconfig({ children }: { children: React.ReactNode }) {
           </div>
           <Separator className="my-6" />
           <div>
-            <KeyDetails apiKey={currentApiKey} />
+            <KeyDetails
+              apiKey={currentApiKey}
+              closeDrawer={() => setIsOpen(false)}
+            />
           </div>
         </div>
         <DrawerFooter>
@@ -147,7 +150,13 @@ function AddKey({
   );
 }
 
-function KeyDetails({ apiKey }: { apiKey?: PartialApiKey }) {
+function KeyDetails({
+  apiKey,
+  closeDrawer,
+}: {
+  apiKey?: PartialApiKey;
+  closeDrawer: () => void;
+}) {
   const [label, setLabel] = useState(apiKey?.label ?? "");
   const [value, setValue] = useState(apiKey?.value ?? "");
   const [hidden, setHidden] = useState(true);
@@ -257,17 +266,30 @@ function KeyDetails({ apiKey }: { apiKey?: PartialApiKey }) {
             </Button>
           </>
         ) : (
-          <Button
-            disabled={!label || !value}
-            onClick={() => {
-              if (label && value) {
-                const id = addApiKey(label, value);
-                applyApiKey(id);
-              }
-            }}
-          >
-            Add & Apply
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              disabled={!label || !value}
+              onClick={() => {
+                if (label && value) {
+                  addApiKey(label, value);
+                }
+              }}
+            >
+              Add
+            </Button>
+            <Button
+              disabled={!label || !value}
+              onClick={() => {
+                if (label && value) {
+                  const id = addApiKey(label, value);
+                  applyApiKey(id);
+                  closeDrawer();
+                }
+              }}
+            >
+              Add & Apply
+            </Button>
+          </div>
         )}
       </div>
     </div>
