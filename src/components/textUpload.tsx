@@ -44,7 +44,7 @@ export default function TextUpload({
           </DrawerTitle>
           <DrawerDescription></DrawerDescription>
         </DrawerHeader>
-        <div className="flex h-[80dvh] flex-col px-8">
+        <div className="flex h-[60dvh] flex-col px-8">
           <Textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
