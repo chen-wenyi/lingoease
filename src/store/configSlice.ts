@@ -12,6 +12,7 @@ export const createConfigSlice: StateCreator<
   apikeys: [],
   currentStep: 0,
   uploadContentType: "audioVideo",
+  content: "",
   selectApiKey: (id) => {
     set((state) => {
       state.activeApiKeyId = id;
@@ -45,9 +46,23 @@ export const createConfigSlice: StateCreator<
       });
     });
   },
-  updateCurrentStep: (step) => {
+  updateCurrentStep: () => {
     set((state) => {
-      state.currentStep = step;
+      const activeApiKey = state.apikeys.find(
+        (key) => key.id === state.activeApiKeyId,
+      );
+      if (activeApiKey?.status === "valid") {
+        if (state.content) {
+          state.currentStep = 2;
+          if (state.simplifiedContent) {
+            state.currentStep = 3;
+          }
+        } else {
+          state.currentStep = 1;
+        }
+      } else {
+        state.currentStep = 0;
+      }
     });
   },
   updateUploadContentType: (type) => {
@@ -61,6 +76,19 @@ export const createConfigSlice: StateCreator<
       if (apikey) {
         apikey.status = status;
       }
+    });
+  },
+  setContent: (content) => {
+    set((state) => {
+      if (!content) {
+        state.simplifiedContent = "";
+      }
+      state.content = content;
+    });
+  },
+  setSimplifiedContent: (content) => {
+    set((state) => {
+      state.simplifiedContent = content;
     });
   },
 });

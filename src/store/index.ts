@@ -14,6 +14,7 @@ export const useStore = create<StoreState>()(
       partialize: (state) => ({
         activeApiKeyId: state.activeApiKeyId,
         apikeys: state.apikeys,
+        uploadContentType: state.uploadContentType,
       }),
       merge: (persistedState, currentState) => {
         if (!persistedState || typeof persistedState !== "object") {
@@ -24,7 +25,6 @@ export const useStore = create<StoreState>()(
         return {
           ...currentState,
           ...typedPersistedState,
-          // currentStep: typedPersistedState.activeApiKeyId ? 1 : 0,
           apikeys:
             typedPersistedState.apikeys?.map((key) => ({
               ...key,

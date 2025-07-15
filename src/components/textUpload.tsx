@@ -1,6 +1,11 @@
+"use client";
+
 import { useState } from "react";
+import { useStore } from "~/store";
+import { Button } from "./ui/button";
 import {
   Drawer,
+  DrawerClose,
   DrawerContent,
   DrawerDescription,
   DrawerFooter,
@@ -8,13 +13,24 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "./ui/drawer";
+import { Textarea } from "./ui/textarea";
 
 export default function TextUpload({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const content = useStore((state) => state.content);
+  const setContent = useStore((state) => state.setContent);
+  const updateCurrentStep = useStore((state) => state.updateCurrentStep);
+
   const [isOpen, setIsOpen] = useState(false);
+
+  const onSubmit = () => {
+    setContent(content);
+    updateCurrentStep();
+    setIsOpen(false);
+  };
 
   return (
     <Drawer onOpenChange={setIsOpen} open={isOpen}>
@@ -28,12 +44,19 @@ export default function TextUpload({
           </DrawerTitle>
           <DrawerDescription></DrawerDescription>
         </DrawerHeader>
-        <div className="h-[80dvh] px-8"></div>
+        <div className="flex h-[80dvh] flex-col px-8">
+          <Textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="flex-1"
+            placeholder="Type your text here..."
+          />
+        </div>
         <DrawerFooter>
-          {/* <Button>Submit</Button>
-          <DrawerClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </DrawerClose> */}
+          <DrawerClose asChild onClick={onSubmit}>
+            <Button>Submit</Button>
+            {/* <Button variant="outline">Cancel</Button> */}
+          </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

@@ -2,6 +2,8 @@
 
 import { useStore } from "~/store";
 import Keyconfig from "./keyconfig";
+import SimplifiedResult from "./SimplifiedResult";
+import Simplify from "./simplify";
 import { Button } from "./ui/button";
 import Upload from "./upload";
 
@@ -15,7 +17,9 @@ export default function Footer() {
       case 1:
         return <Upload />;
       case 2:
-        return <Button className="w-full">Simplify</Button>;
+        return <Simplify />;
+      case 3:
+        return <SimplifiedResult />;
     }
   };
 

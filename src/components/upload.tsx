@@ -6,13 +6,13 @@ import TextUpload from "./textUpload";
 import { Button } from "./ui/button";
 
 export default function Upload() {
-  const selectedContentType = useStore((state) => state.uploadContentType);
+  const uploadContentType = useStore((state) => state.uploadContentType);
 
   return (
     <div className="flex w-full items-center justify-center gap-2">
       <SwapContentType />
 
-      {selectedContentType === "audioVideo" ? (
+      {uploadContentType === "audioVideo" ? (
         <AudioVideoUpload>
           <Button className="h-12 flex-1">Upload Audio/Video</Button>
         </AudioVideoUpload>
@@ -26,14 +26,14 @@ export default function Upload() {
 }
 
 function SwapContentType() {
-  const selectedContentType = useStore((state) => state.uploadContentType);
+  const uploadContentType = useStore((state) => state.uploadContentType);
   const updateUploadContentType = useStore(
     (state) => state.updateUploadContentType,
   );
 
   const handleSwap = () => {
     updateUploadContentType(
-      selectedContentType === "audioVideo" ? "text" : "audioVideo",
+      uploadContentType === "audioVideo" ? "text" : "audioVideo",
     );
   };
 
@@ -42,7 +42,7 @@ function SwapContentType() {
       <label className="swap swap-rotate">
         <input
           type="checkbox"
-          checked={selectedContentType === "audioVideo"}
+          checked={uploadContentType === "audioVideo"}
           onChange={handleSwap}
         />
         <div className="swap-on text-3xl">

@@ -1,5 +1,6 @@
 "use client";
 
+import Cookies from "js-cookie";
 import { useEffect } from "react";
 import { FaCheck } from "react-icons/fa";
 import { toast } from "sonner";
@@ -101,16 +102,26 @@ function useAPIKeysValidation() {
   const updateCurrentStep = useStore((state) => state.updateCurrentStep);
 
   useEffect(() => {
-    if (activeApiKey && activeApiKey.status === "pending") {
-      void validateOpenAIAPIKey(activeApiKey.value).then((isValid) => {
-        updateApiKeyStatus(activeApiKeyId, isValid ? "valid" : "invalid");
-        if (isValid) {
-          updateCurrentStep(1);
-        } else {
-          updateCurrentStep(0);
-          toast.error("Current API Key is invalid. Please check.");
-        }
-      });
+    if (activeApiKey) {
+      switch (activeApiKey.status) {
+        case "pending":
+          void validateOpenAIAPIKey(activeApiKey.value).then((isValid) => {
+            updateApiKeyStatus(activeApiKeyId, isValid ? "valid" : "invalid");
+            updateCurrentStep();
+            if (!isValid) {
+              Cookies.remove("api-key");
+              toast.error("Current API Key is invalid. Please check.");
+            } else {
+              Cookies.set("api-key", activeApiKey.value);
+            }
+          });
+          break;
+        case "valid":
+          Cookies.set("api-key", activeApiKey.value);
+          break;
+        case "invalid":
+          Cookies.remove("api-key");
+      }
     }
   }, [activeApiKey, activeApiKeyId, updateApiKeyStatus, updateCurrentStep]);
 }

@@ -86,18 +86,15 @@ function KeySelector() {
   const apikeys = useStore((state) => state.apikeys);
   const activeApiKeyId = useStore((state) => state.activeApiKeyId);
   const selectApiKey = useStore((state) => state.selectApiKey);
-  const currentStep = useStore((state) => state.currentStep);
   const updateCurrentStep = useStore((state) => state.updateCurrentStep);
 
   const applyApiKey = (id: string) => {
     selectApiKey(id);
     const activeApiKey = apikeys.find((key) => key.id === id);
-    if (activeApiKey?.status === "valid") {
-      updateCurrentStep(currentStep === 0 ? 1 : currentStep);
-    } else if (activeApiKey?.status === "invalid") {
-      updateCurrentStep(0);
+    if (activeApiKey?.status === "invalid") {
       toast.error("Current API Key is invalid. Please check.");
     }
+    updateCurrentStep();
   };
 
   return (
@@ -263,7 +260,7 @@ function SelectConfigTab() {
                     onClick={() => {
                       if (apiKey?.id) {
                         removeApiKey(apiKey.id);
-                        updateCurrentStep(0);
+                        updateCurrentStep();
                       }
                     }}
                   >
@@ -318,7 +315,6 @@ function CreateConfigTab({ closeDrawer }: { closeDrawer: () => void }) {
   const addApiKey = useStore((state) => state.addApiKey);
   const selectApiKey = useStore((state) => state.selectApiKey);
 
-  const currentStep = useStore((state) => state.currentStep);
   const updateCurrentStep = useStore((state) => state.updateCurrentStep);
 
   const [isValidating, startTransition] = useTransition();
@@ -349,9 +345,7 @@ function CreateConfigTab({ closeDrawer }: { closeDrawer: () => void }) {
 
   const applyApiKey = (key: string) => {
     selectApiKey(key);
-    if (currentStep === 0) {
-      updateCurrentStep(1);
-    }
+    updateCurrentStep();
   };
 
   const pasteApiKey = async () => {
