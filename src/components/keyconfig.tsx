@@ -194,11 +194,12 @@ function SelectConfigTab() {
             <div>
               <Toaster />
               <div className="flex flex-col gap-4">
-                <div className="grid w-full max-w-sm items-center gap-3">
+                <div className="grid w-full items-center gap-3">
                   <Label className="flex items-center" htmlFor="">
-                    Your API Key Config
+                    Select API Key Config
                   </Label>
                   <KeySelector />
+                  <div className="w-full border-b border-gray-200"></div>
                   <Label htmlFor="label">Label</Label>
                   <Input
                     key={`label-${apiKey?.id}`}
@@ -372,7 +373,14 @@ function CreateConfigTab({ closeDrawer }: { closeDrawer: () => void }) {
             <div>
               <Toaster />
               <div className="flex flex-col gap-4">
-                <div className="grid w-full max-w-sm items-center gap-3">
+                <div className="grid w-full items-center gap-3">
+                  <Label className="flex items-center" htmlFor="">
+                    Create New API Key Config
+                  </Label>
+                  <div className="item-center flex h-9 text-xs sm:text-sm sm:leading-9">
+                    Create a labeled API key configuration for easy management
+                  </div>
+                  <div className="w-full border-b border-gray-200"></div>
                   <Label htmlFor="label">Label</Label>
                   <Input
                     // key={`label-${apiKey?.id}`}
@@ -473,8 +481,10 @@ function Instructions() {
         <AlertDialogHeader>
           <AlertDialogTitle>Why need a API Key?</AlertDialogTitle>
           <AlertDialogDescription>
-            {`An OpenAI API key is a unique key that allows application to access
+            <div className="flex items-start text-left">
+              {`An OpenAI API key is a unique key that allows application to access
             and utilize OpenAI's models.`}
+            </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
