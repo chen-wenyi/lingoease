@@ -12,7 +12,6 @@ import {
 } from "./ui/drawer";
 
 import clsx from "clsx";
-import dayjs from "dayjs";
 import { useEffect, useState, useTransition } from "react";
 import { BiSolidError } from "react-icons/bi";
 import { FaEyeSlash, FaPaste, FaQuestionCircle } from "react-icons/fa";
@@ -33,6 +32,7 @@ import {
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
 import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader } from "./ui/card";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import {
@@ -42,25 +42,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { Separator } from "./ui/separator";
 import { Toaster } from "./ui/sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Textarea } from "./ui/textarea";
-
-type PartialApiKey = Omit<ApiKey, "id"> & Partial<Pick<ApiKey, "id">>;
 
 export default function Keyconfig({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const activeApiKeyId = useStore((state) => state.activeApiKeyId);
-  const apikeys = useStore((state) => state.apikeys);
-  const selectedApiKey = apikeys.find((key) => key.id === activeApiKeyId);
-  const [currentApiKey, setCurrentApiKey] = useState<PartialApiKey | undefined>(
-    selectedApiKey,
-  );
-
-  useEffect(() => {
-    const selectedApiKey = apikeys.find((key) => key.id === activeApiKeyId);
-    setCurrentApiKey(!selectedApiKey ? undefined : { ...selectedApiKey });
-  }, [activeApiKeyId, isOpen, apikeys]);
+  const [mode, setMode] = useState<"select" | "create">("select");
 
   return (
     <Drawer onOpenChange={setIsOpen} open={isOpen}>
@@ -75,21 +63,19 @@ export default function Keyconfig({ children }: { children: React.ReactNode }) {
           </DrawerTitle>
           <DrawerDescription></DrawerDescription>
         </DrawerHeader>
-        <div className="px-8">
-          <div className="flex">
-            <div className="flex-1 pr-2">
-              <KeySelector />
-            </div>
-            <AddKey setCurrentApiKey={setCurrentApiKey} />
-          </div>
-          <Separator className="my-6" />
-          <div>
-            <KeyDetails
-              apiKey={currentApiKey}
-              closeDrawer={() => setIsOpen(false)}
-            />
-          </div>
-        </div>
+        <Tabs
+          value={mode}
+          className="mx-4"
+          onValueChange={(v) => setMode(v as "select" | "create")}
+        >
+          <TabsList>
+            <TabsTrigger value="select">Existing Config</TabsTrigger>
+            <TabsTrigger value="create">New Config</TabsTrigger>
+          </TabsList>
+          <SelectConfigTab />
+          <CreateConfigTab closeDrawer={() => setIsOpen(false)} />
+        </Tabs>
+
         <DrawerFooter></DrawerFooter>
       </DrawerContent>
     </Drawer>
@@ -116,7 +102,7 @@ function KeySelector() {
 
   return (
     <Select value={activeApiKeyId} onValueChange={applyApiKey}>
-      <SelectTrigger className="w-48 overflow-hidden sm:w-full">
+      <SelectTrigger className="w-full overflow-hidden sm:w-full">
         <SelectValue placeholder="Select API Key" />
       </SelectTrigger>
       <SelectContent>
@@ -136,33 +122,11 @@ function KeySelector() {
   );
 }
 
-function AddKey({
-  setCurrentApiKey,
-}: {
-  setCurrentApiKey: (key: PartialApiKey) => void;
-}) {
-  return (
-    <Button
-      onClick={() => {
-        setCurrentApiKey({
-          label: `New API Key(${dayjs().format("DD/MM/YY HH:mm:ss")})`,
-          value: "",
-          status: "pending",
-        });
-      }}
-    >
-      Add API Key
-    </Button>
+function SelectConfigTab() {
+  const apiKey = useStore((state) =>
+    state.apikeys.find((key) => key.id === state.activeApiKeyId),
   );
-}
 
-function KeyDetails({
-  apiKey,
-  closeDrawer,
-}: {
-  apiKey?: PartialApiKey;
-  closeDrawer: () => void;
-}) {
   const [label, setLabel] = useState(apiKey?.label ?? "");
   const [value, setValue] = useState(apiKey?.value ?? "");
   const [status, setStatus] = useState(apiKey?.status ?? "pending");
@@ -174,10 +138,184 @@ function KeyDetails({
     label !== "" &&
     (value !== apiKey?.value || label !== apiKey?.label);
 
-  const addApiKey = useStore((state) => state.addApiKey);
-  const selectApiKey = useStore((state) => state.selectApiKey);
   const removeApiKey = useStore((state) => state.removeApiKey);
   const updateApiKey = useStore((state) => state.updateApiKey);
+
+  const updateCurrentStep = useStore((state) => state.updateCurrentStep);
+
+  const [isValidating, startTransition] = useTransition();
+
+  const tryValidateApiKey = async () => {
+    if (!value) {
+      setStatus("pending");
+      return;
+    }
+    if (status === "valid" && !shouldUpdate) {
+      return;
+    }
+    void validateApiKey(value);
+  };
+
+  const validateApiKey = async (value: string) => {
+    setStatus("pending");
+    startTransition(async () => {
+      const isValid = await validateOpenAIAPIKey(value);
+      if (!isValid) {
+        toast.error("Invalid API Key. Please check your key and try again.");
+      }
+      startTransition(() => {
+        setStatus(isValid ? "valid" : "invalid");
+      });
+    });
+  };
+
+  useEffect(() => {
+    setLabel(apiKey?.label ?? "");
+    setValue(apiKey?.value ?? "");
+    setStatus(apiKey?.status ?? "pending");
+  }, [apiKey]);
+
+  const pasteApiKey = async () => {
+    try {
+      const clipboardText = await navigator.clipboard.readText();
+      setValue(clipboardText.trim());
+      void validateApiKey(clipboardText.trim());
+    } catch (error) {
+      console.error("Failed to read clipboard contents: ", error);
+    }
+  };
+
+  return (
+    <TabsContent value="select">
+      <Card className="gap-0 py-2">
+        <CardHeader></CardHeader>
+        <CardContent className="grid gap-6">
+          <div className="flex flex-1 flex-col gap-2 pr-2">
+            <div>
+              <Toaster />
+              <div className="flex flex-col gap-4">
+                <div className="grid w-full max-w-sm items-center gap-3">
+                  <Label className="flex items-center" htmlFor="">
+                    Your API Key Config
+                  </Label>
+                  <KeySelector />
+                  <Label htmlFor="label">Label</Label>
+                  <Input
+                    key={`label-${apiKey?.id}`}
+                    type="text"
+                    id="label"
+                    placeholder="Label"
+                    disabled={!apiKey?.id}
+                    value={label}
+                    onChange={(e) => setLabel(e.target.value)}
+                    onFocus={(e) => (e.target as HTMLInputElement).select()}
+                  />
+                </div>
+                <div className="grid w-full gap-3">
+                  <Label className="flex items-center" htmlFor="">
+                    API Key
+                    <APIKeyValidity status={status} />
+                  </Label>
+                  <Textarea
+                    className={clsx("h-[115px] font-mono text-xs", {
+                      "border-red-500": status === "invalid",
+                    })}
+                    disabled={!apiKey?.id}
+                    key={`apikey-${apiKey?.id}`}
+                    placeholder="Type your API Key here."
+                    id="apikey"
+                    value={hidden ? hiddenValue : value}
+                    onChange={(e) => setValue(e.target.value)}
+                    onFocus={(e) => {
+                      (e.target as HTMLTextAreaElement).select();
+                      setHidden(false);
+                    }}
+                    onBlur={tryValidateApiKey}
+                  />
+                  <div className="flex gap-2">
+                    <Button
+                      disabled={!apiKey?.id}
+                      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border-1 border-gray-300 bg-transparent"
+                      onClick={() => {
+                        setHidden(!hidden);
+                      }}
+                    >
+                      {!hidden ? (
+                        <IoMdEye className="text-black" />
+                      ) : (
+                        <FaEyeSlash className="text-black" />
+                      )}
+                    </Button>
+                    <Button
+                      disabled={!apiKey?.id}
+                      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border-1 border-gray-300 bg-transparent"
+                      onClick={pasteApiKey}
+                    >
+                      <FaPaste className="text-black" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="mb-2 flex justify-end gap-2">
+                  <Button
+                    variant="destructive"
+                    disabled={!apiKey?.id}
+                    onClick={() => {
+                      if (apiKey?.id) {
+                        removeApiKey(apiKey.id);
+                        updateCurrentStep(0);
+                      }
+                    }}
+                  >
+                    Delete
+                  </Button>
+                  <div className="w-30">
+                    {isValidating ? (
+                      <Button className="w-full" disabled>
+                        Validating...
+                      </Button>
+                    ) : (
+                      <Button
+                        className="w-full"
+                        disabled={
+                          !shouldUpdate ||
+                          ["invalid", "pending"].includes(status)
+                        }
+                        onClick={() => {
+                          if (apiKey && label && value && apiKey.id) {
+                            updateApiKey({
+                              id: apiKey.id,
+                              label,
+                              value,
+                              status,
+                            });
+                          }
+                        }}
+                      >
+                        Update
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </TabsContent>
+  );
+}
+
+function CreateConfigTab({ closeDrawer }: { closeDrawer: () => void }) {
+  const [label, setLabel] = useState("");
+  const [value, setValue] = useState("");
+  const [status, setStatus] = useState<ApiKey["status"]>("pending");
+  const [hidden, setHidden] = useState(true);
+  const hiddenValue = value ? value.replace(/./g, "*") : "";
+
+  const shouldUpdate = value !== "" && label !== "";
+
+  const addApiKey = useStore((state) => state.addApiKey);
+  const selectApiKey = useStore((state) => state.selectApiKey);
 
   const currentStep = useStore((state) => state.currentStep);
   const updateCurrentStep = useStore((state) => state.updateCurrentStep);
@@ -215,12 +353,6 @@ function KeyDetails({
     }
   };
 
-  useEffect(() => {
-    setLabel(apiKey?.label ?? "");
-    setValue(apiKey?.value ?? "");
-    setStatus(apiKey?.status ?? "pending");
-  }, [apiKey]);
-
   const pasteApiKey = async () => {
     try {
       const clipboardText = await navigator.clipboard.readText();
@@ -232,130 +364,102 @@ function KeyDetails({
   };
 
   return (
-    <div>
-      <Toaster />
-      <div className="flex flex-col gap-4">
-        <div className="grid w-full max-w-sm items-center gap-3">
-          <Label htmlFor="label">Label</Label>
-          <Input
-            key={`label-${apiKey?.id}`}
-            type="text"
-            id="label"
-            placeholder="Label"
-            value={label}
-            onChange={(e) => setLabel(e.target.value)}
-            onFocus={(e) => (e.target as HTMLInputElement).select()}
-          />
-        </div>
-        <div className="grid w-full gap-3">
-          <Label className="flex items-center" htmlFor="">
-            API Key
-            <APIKeyValidity status={status} />
-          </Label>
-          <Textarea
-            className={clsx("h-[115px] font-mono text-xs", {
-              "border-red-500": status === "invalid",
-            })}
-            key={`apikey-${apiKey?.id}`}
-            placeholder="Type your API Key here."
-            id="apikey"
-            value={hidden ? hiddenValue : value}
-            onChange={(e) => setValue(e.target.value)}
-            onFocus={(e) => {
-              (e.target as HTMLTextAreaElement).select();
-              setHidden(false);
-            }}
-            onBlur={tryValidateApiKey}
-          />
-          <div className="flex gap-2">
-            <div
-              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border-1 border-gray-300"
-              onClick={() => {
-                setHidden(!hidden);
-              }}
-            >
-              {!hidden ? <IoMdEye /> : <FaEyeSlash />}
-            </div>
-            <div
-              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border-1 border-gray-300"
-              onClick={pasteApiKey}
-            >
-              <FaPaste />
+    <TabsContent value="create">
+      <Card className="gap-0 py-2">
+        <CardHeader></CardHeader>
+        <CardContent className="grid gap-6">
+          <div className="flex flex-1 flex-col gap-2 pr-2">
+            <div>
+              <Toaster />
+              <div className="flex flex-col gap-4">
+                <div className="grid w-full max-w-sm items-center gap-3">
+                  <Label htmlFor="label">Label</Label>
+                  <Input
+                    // key={`label-${apiKey?.id}`}
+                    type="text"
+                    id="label"
+                    placeholder="Label"
+                    value={label}
+                    onChange={(e) => setLabel(e.target.value)}
+                    onFocus={(e) => (e.target as HTMLInputElement).select()}
+                  />
+                </div>
+                <div className="grid w-full gap-3">
+                  <Label className="flex items-center" htmlFor="">
+                    API Key
+                    <APIKeyValidity status={status} />
+                  </Label>
+                  <Textarea
+                    className={clsx("h-[115px] font-mono text-xs", {
+                      "border-red-500": status === "invalid",
+                    })}
+                    // key={`apikey-${apiKey?.id}`}
+                    placeholder="Type your API Key here."
+                    id="apikey"
+                    value={hidden ? hiddenValue : value}
+                    onChange={(e) => setValue(e.target.value)}
+                    onFocus={(e) => {
+                      (e.target as HTMLTextAreaElement).select();
+                      setHidden(false);
+                    }}
+                    onBlur={tryValidateApiKey}
+                  />
+                  <div className="flex gap-2">
+                    <div
+                      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border-1 border-gray-300"
+                      onClick={() => {
+                        setHidden(!hidden);
+                      }}
+                    >
+                      {!hidden ? <IoMdEye /> : <FaEyeSlash />}
+                    </div>
+                    <div
+                      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border-1 border-gray-300"
+                      onClick={pasteApiKey}
+                    >
+                      <FaPaste />
+                    </div>
+                  </div>
+                </div>
+                <div className="mb-2 flex justify-end gap-2">
+                  <div className="flex gap-2">
+                    <Button
+                      disabled={checkDisabledStatus(label, value, status)}
+                      onClick={() => {
+                        if (label && value) {
+                          addApiKey(label, value);
+                        }
+                      }}
+                    >
+                      Add
+                    </Button>
+                    {isValidating ? (
+                      <Button className="w-30" disabled>
+                        Validating...
+                      </Button>
+                    ) : (
+                      <Button
+                        className="w-30"
+                        disabled={checkDisabledStatus(label, value, status)}
+                        onClick={() => {
+                          if (label && value) {
+                            const id = addApiKey(label, value);
+                            applyApiKey(id);
+                            closeDrawer();
+                          }
+                        }}
+                      >
+                        Add & Apply
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="mt-4 flex justify-end gap-2">
-          {apiKey?.id ? (
-            <>
-              <Button
-                variant="destructive"
-                onClick={() => {
-                  if (apiKey.id) {
-                    removeApiKey(apiKey.id);
-                    updateCurrentStep(0);
-                  }
-                }}
-              >
-                Delete
-              </Button>
-              <div className="w-30">
-                {isValidating ? (
-                  <Button className="w-full" disabled>
-                    Validating...
-                  </Button>
-                ) : (
-                  <Button
-                    className="w-full"
-                    disabled={
-                      !shouldUpdate || ["invalid", "pending"].includes(status)
-                    }
-                    onClick={() => {
-                      if (label && value && apiKey.id) {
-                        updateApiKey({ id: apiKey.id, label, value, status });
-                      }
-                    }}
-                  >
-                    Update
-                  </Button>
-                )}
-              </div>
-            </>
-          ) : (
-            <div className="flex gap-2">
-              <Button
-                disabled={checkDisabledStatus(label, value, status)}
-                onClick={() => {
-                  if (label && value) {
-                    addApiKey(label, value);
-                  }
-                }}
-              >
-                Add
-              </Button>
-              {isValidating ? (
-                <Button className="w-30" disabled>
-                  Validating...
-                </Button>
-              ) : (
-                <Button
-                  className="w-30"
-                  disabled={checkDisabledStatus(label, value, status)}
-                  onClick={() => {
-                    if (label && value) {
-                      const id = addApiKey(label, value);
-                      applyApiKey(id);
-                      closeDrawer();
-                    }
-                  }}
-                >
-                  Add & Apply
-                </Button>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+        </CardContent>
+      </Card>
+    </TabsContent>
   );
 }
 
