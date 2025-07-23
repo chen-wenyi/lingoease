@@ -2,6 +2,7 @@ import { useTransition } from "react";
 import { simplify } from "~/actions/simplify";
 import { useStore } from "~/store";
 import { Button } from "./ui/button";
+import { ScrollArea } from "./ui/scroll-area";
 
 export default function SimplifiedResult() {
   const content = useStore((state) => state.content);
@@ -28,11 +29,12 @@ export default function SimplifiedResult() {
   };
 
   return (
-    <div>
+    <div className="flex flex-col items-center justify-center">
       {simplifiedContent && (
-        <div className="text-md mb-4 h-45 overflow-auto">
-          <div className="mb-4 text-lg font-semibold">Simplified Text</div>
-          <div>{simplifiedContent}</div>
+        <div className="text-md mb-4 flex-1">
+          <ScrollArea className="h-[300px] w-full rounded-md border p-4">
+            {simplifiedContent}
+          </ScrollArea>
         </div>
       )}
       <Button className="h-12 w-full" onClick={onRegenerate}>
