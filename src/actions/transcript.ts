@@ -3,7 +3,7 @@
 import axios from "axios";
 import { cookies } from "next/headers";
 
-const API_URL = "http://127.0.0.1:8000/transcript/stream";
+const API_URL = "https://lingoease-api.onrender.com/transcript/stream";
 
 interface TranscriptResponse {
   output: string;
