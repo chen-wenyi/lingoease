@@ -13,6 +13,7 @@ export const createConfigSlice: StateCreator<
   currentStep: 0,
   uploadContentType: "audioVideo",
   content: "",
+  file: null,
   selectApiKey: (id) => {
     set((state) => {
       state.activeApiKeyId = id;
@@ -84,6 +85,11 @@ export const createConfigSlice: StateCreator<
         state.simplifiedContent = "";
       }
       state.content = content;
+    });
+  },
+  setFile: (file) => {
+    set((state) => {
+      state.file = file;
     });
   },
   setSimplifiedContent: (content) => {

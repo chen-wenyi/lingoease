@@ -6,6 +6,7 @@ export type ConfigSlice = {
   currentStep: 0 | 1 | 2 | 3;
   uploadContentType: "audioVideo" | "text";
   content: string;
+  file: File | null;
   simplifiedContent?: string;
   selectApiKey: (id: string) => void;
   addApiKey: (label: string, value: string) => string;
@@ -18,6 +19,7 @@ export type ConfigSlice = {
     status: "valid" | "invalid" | "pending",
   ) => void;
   setContent: (content: string) => void;
+  setFile: (file: File | null) => void;
   setSimplifiedContent: (content: string) => void;
 };
 
