@@ -1,6 +1,7 @@
 import { useState, useTransition } from "react";
 import { FaQuestionCircle } from "react-icons/fa";
 import { transcript } from "~/actions/transcript";
+import { uploadFile } from "~/actions/uploadFile";
 import { useStore } from "~/store";
 import {
   Drawer,
@@ -31,7 +32,9 @@ export default function AudioVideoUpload({
     if (!selectedFile) return;
     setFile(selectedFile);
     startTransition(async () => {
-      const transcription = await transcript(selectedFile);
+      const url = await uploadFile(selectedFile);
+      console.log("Uploaded URL:", url);
+      const transcription = await transcript(url);
       startTransition(() => {
         setTranscription(transcription);
       });
