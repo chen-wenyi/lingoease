@@ -3,7 +3,7 @@
 import axios from "axios";
 import { cookies } from "next/headers";
 
-const API_URL = "https://lingoease-api.onrender.com/transcript";
+const API_URL = "http://127.0.0.1:8000/transcript/stream";
 
 interface TranscriptResponse {
   output: string;
@@ -16,13 +16,11 @@ export async function transcript(file: File): Promise<string> {
     throw new Error("Cannot get API key");
   }
 
-  const formData = new FormData();
-  formData.append("file", file);
-
-  const response = await axios.post<TranscriptResponse>(API_URL, formData, {
+  const response = await axios.post<TranscriptResponse>(API_URL, file, {
     headers: {
       "x-api-key": apikey,
-      "Content-Type": "multipart/form-data",
+      "X-Filename": file.name,
+      "Content-Type": "application/octet-stream",
     },
   });
 
