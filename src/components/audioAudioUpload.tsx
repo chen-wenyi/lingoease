@@ -107,7 +107,7 @@ export default function AudioVideoUpload({
 async function fileUpload(file: File) {
   const formData = new FormData();
   formData.append("file", file);
-  const response = await axios.post("/api/upload", formData, {
+  const response = await axios.post<{ url: string }>("/api/upload", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
