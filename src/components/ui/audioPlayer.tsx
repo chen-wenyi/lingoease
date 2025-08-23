@@ -429,7 +429,7 @@ export default function AudioPlayer({
           <audio
             ref={audioRef}
             src={src}
-            preload='auto'
+            preload='metadata'
             crossOrigin={crossOrigin}
             className='hidden'
           />
