@@ -33,7 +33,7 @@ export default function AudioPlayer({
   downloadUrl,
   crossOrigin = 'anonymous',
   className = '',
-  debug = false,
+  debug = true,
 }: {
   src: string;
   title?: string;
