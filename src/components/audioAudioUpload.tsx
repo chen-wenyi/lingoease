@@ -43,6 +43,9 @@ export default function AudioVideoUpload({
   const setFile = useStore((state) => state.setFile);
   const setFileUrl = useStore((state) => state.setFileUrl);
   const updateCurrentStep = useStore((state) => state.updateCurrentStep);
+  const setSimplificationProgress = useStore(
+    (state) => state.setSimplificationProgress
+  );
 
   const [uploading, startUploadTransition] = useTransition();
 
@@ -86,7 +89,10 @@ export default function AudioVideoUpload({
     updateCurrentStep();
     startSimplifyTransition(async () => {
       // const transcription = await transcribe(fileUrl);
+      setIsOpen(false);
       try {
+        setSimplificationProgress('Extracting the scripts from audio...');
+
         const form = new FormData();
 
         setDebugContent('arrayBuffer');
@@ -125,11 +131,15 @@ export default function AudioVideoUpload({
           return;
         }
 
+        setSimplificationProgress('Segmenting the scripts...');
+
         const chunks = await segment(transcription.text);
 
         console.log('chunks:');
         console.log('------------- chunks ------------- ');
         console.log(chunks);
+
+        setSimplificationProgress('Analyzing the scripts...');
 
         // Analyze the chunks
         const analysisRes = await analyzeAndFindCandidateWords(
@@ -138,6 +148,8 @@ export default function AudioVideoUpload({
         );
         console.log('------------- analysis ------------- ');
         console.log(analysisRes);
+
+        setSimplificationProgress('Simplifying the scripts...');
 
         const simplified = await simplify(
           analysisRes.analyzedChunks.map(({ text, newWords }) => ({
@@ -156,6 +168,8 @@ export default function AudioVideoUpload({
         console.log(analyzedSimplifiedChunks);
 
         console.log('------------- tts... ------------- ');
+
+        setSimplificationProgress('');
 
         const simplifiedContent = simplified.join(' ');
         // const ttsResp = await tts(simplified.join(' '));
@@ -194,7 +208,6 @@ export default function AudioVideoUpload({
           description: stack ? `${description}\n\n${stack}` : description,
         });
       }
-      // }
     });
   };
 
@@ -289,10 +302,10 @@ function Instructions() {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <audio controls>
-            <source src={`/api/tts?content=${encodeURIComponent(content)}`} />
-            Your browser does not support the audio element.
-          </audio>
+          <AudioPlayer
+            src={`https://gggr3f0tgjgai8sk.public.blob.vercel-storage.com/ted1-aIKJe4NgUrJmb2e7wxFShGE3Xj6PmC.mp3`}
+            title='Generated Speech'
+          />
           <AlertDialogCancel>Got it</AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>

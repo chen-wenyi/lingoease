@@ -1,5 +1,12 @@
 import type { ApiKey } from '@/typings';
 
+type SimplificationProgressMessage =
+  | 'Extracting the scripts from audio...'
+  | 'Segmenting the scripts...'
+  | 'Analyzing the scripts...'
+  | 'Simplifying the scripts...'
+  | '';
+
 export type ConfigSlice = {
   activeApiKeyId: string;
   apikeys: ApiKey[];
@@ -9,6 +16,10 @@ export type ConfigSlice = {
   file: File | null;
   fileUrl: string;
   wordFreq: 500 | 1000;
+  simplificationProgress: {
+    message: SimplificationProgressMessage;
+    number: number;
+  };
   simplifiedResult: {
     audioFileUrl: string;
     audioDownloadUrl: string;
@@ -46,6 +57,7 @@ export type ConfigSlice = {
     newWordsRate: string;
   }) => void;
   resetAll: () => void;
+  setSimplificationProgress: (message: SimplificationProgressMessage) => void;
 };
 
 export type StoreState = ConfigSlice;

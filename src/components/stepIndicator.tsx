@@ -1,7 +1,9 @@
 'use client';
 
 import { validateOpenAIAPIKey } from '@/actions/keyValidation';
+import { Progress } from '@/components/ui/progress';
 import { useStore } from '@/store';
+import clsx from 'clsx';
 import Cookies from 'js-cookie';
 import { useEffect } from 'react';
 import { FaCheck } from 'react-icons/fa';
@@ -16,6 +18,9 @@ export default function StepIndicator() {
   const currentStep = useStore((state) => state.currentStep);
   const simplifiedResult = useStore((state) => state.simplifiedResult);
   const selectedContentType = useStore((state) => state.uploadContentType);
+  const simplificationProgress = useStore(
+    (state) => state.simplificationProgress
+  );
   useAPIKeysValidation();
 
   const stepInfo = [
@@ -75,6 +80,15 @@ export default function StepIndicator() {
       ) : (
         <SimplifiedResult />
       )}
+      <div
+        className={clsx(
+          'flex flex-col justify-center items-center mt-4 w-48 gap-1',
+          { 'opacity-0': simplificationProgress.number === 0 }
+        )}
+      >
+        <div className='animate-pulse'>{simplificationProgress.message}</div>
+        <Progress value={simplificationProgress.number} />
+      </div>
     </div>
   );
 }

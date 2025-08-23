@@ -17,6 +17,10 @@ export const createConfigSlice: StateCreator<
   file: null,
   fileUrl: '',
   simplifiedResult: null,
+  simplificationProgress: {
+    message: '',
+    number: 0,
+  },
   selectApiKey: (id) => {
     set((state) => {
       state.activeApiKeyId = id;
@@ -126,6 +130,22 @@ export const createConfigSlice: StateCreator<
       state.file = null;
       state.fileUrl = '';
       state.simplifiedResult = null;
+    });
+  },
+  setSimplificationProgress: (message) => {
+    set((state) => {
+      state.simplificationProgress.message = message;
+      if (message === '') {
+        state.simplificationProgress.number = 0;
+      } else if (message === 'Extracting the scripts from audio...') {
+        state.simplificationProgress.number = 33;
+      } else if (message === 'Segmenting the scripts...') {
+        state.simplificationProgress.number = 50;
+      } else if (message === 'Analyzing the scripts...') {
+        state.simplificationProgress.number = 66;
+      } else if (message === 'Simplifying the scripts...') {
+        state.simplificationProgress.number = 80;
+      }
     });
   },
 });
