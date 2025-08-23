@@ -42,7 +42,7 @@ export function analyzeChunks(chunks: string[], wordFreq: 500 | 1000) {
       if (wordSet.has(l)) return false;
       if (!isNaN(Number(l))) return false;
       if (/^(i|you|he|she|it|we|they)'[a-z]+$/i.test(l)) return false;
-      if (/^[a-z]'s$/i.test(l)) return false;
+      if (/^[a-z]+'s$/i.test(l)) return false;
       return true;
     });
 

@@ -16,6 +16,7 @@ export const createConfigSlice: StateCreator<
   content: '',
   file: null,
   fileUrl: '',
+  originalChunks: [],
   simplifiedResult: null,
   simplificationProgress: {
     message: '',
@@ -60,7 +61,7 @@ export const createConfigSlice: StateCreator<
         (key) => key.id === state.activeApiKeyId
       );
       if (activeApiKey?.status === 'valid') {
-        if (state.content || state.fileUrl) {
+        if (state.content || state.file) {
           state.currentStep = 2;
           if (state.simplifiedResult?.audioFileUrl) {
             state.currentStep = 3;
@@ -146,6 +147,11 @@ export const createConfigSlice: StateCreator<
       } else if (message === 'Simplifying the scripts...') {
         state.simplificationProgress.number = 80;
       }
+    });
+  },
+  setOriginalChunks: (chunks) => {
+    set((state) => {
+      state.originalChunks = chunks;
     });
   },
 });

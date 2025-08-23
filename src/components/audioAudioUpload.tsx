@@ -52,6 +52,8 @@ export default function AudioVideoUpload({
   const [simplifying, startSimplifyTransition] = useTransition();
   const setSimplifiedResult = useStore((state) => state.setSimplifiedResult);
 
+  const setOriginalChunks = useStore((state) => state.setOriginalChunks);
+
   const onFileUpload = async (file: File | null) => {
     if (!file) return;
     setFile(file);
@@ -143,6 +145,8 @@ export default function AudioVideoUpload({
         console.log('------------- analysis ------------- ');
         console.log(analysisRes);
 
+        setOriginalChunks(analysisRes.analyzedChunks);
+
         setSimplificationProgress('Simplifying the scripts...');
 
         const simplified = await simplify(
@@ -166,6 +170,7 @@ export default function AudioVideoUpload({
         const simplifiedContent = simplified.join(' ');
 
         const url = `/api/tts?content=${encodeURIComponent(simplifiedContent)}`;
+        // const url = `https://gggr3f0tgjgai8sk.public.blob.vercel-storage.com/ted1-aIKJe4NgUrJmb2e7wxFShGE3Xj6PmC.mp3`;
 
         const downloadUrl = '';
 

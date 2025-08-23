@@ -20,6 +20,8 @@ export type ConfigSlice = {
     message: SimplificationProgressMessage;
     number: number;
   };
+
+  originalChunks: { text: string; newWords: string[] }[];
   simplifiedResult: {
     audioFileUrl: string;
     audioDownloadUrl: string;
@@ -58,6 +60,7 @@ export type ConfigSlice = {
   }) => void;
   resetAll: () => void;
   setSimplificationProgress: (message: SimplificationProgressMessage) => void;
+  setOriginalChunks: (chunks: { text: string; newWords: string[] }[]) => void;
 };
 
 export type StoreState = ConfigSlice;
