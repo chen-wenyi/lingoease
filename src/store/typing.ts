@@ -5,6 +5,7 @@ type SimplificationProgressMessage =
   | 'Segmenting the scripts...'
   | 'Analyzing the scripts...'
   | 'Simplifying the scripts...'
+  | 'Generating audio...'
   | '';
 
 export type ConfigSlice = {

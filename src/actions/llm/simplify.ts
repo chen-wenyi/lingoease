@@ -28,9 +28,10 @@ whenever the replacement fits naturally and keeps the original intent.
 Rules:
 1. Prefer using the candidate list whenever possible. 
 2. If no candidate makes sense at all, keep the word unchanged.  
-3. Do not simplify fixed expressions (e.g., "ladies and gentlemen", "he's", "it's", "they're").  
-4. Do not simplify idioms (e.g., "spill the beans", "break the ice").  
-5. Make sure the final text is fluent and natural.  
+3. Do not replace topics when they appear in meta-phrases like “today we would talk about ___”, “our topic is ___”, “let's discuss ___”. Keep the original topic text unchanged.
+4. Do not simplify fixed expressions (e.g., "ladies and gentlemen", "he's", "it's", "they're").  
+5. Do not simplify idioms (e.g., "spill the beans", "break the ice").  
+6. Make sure the final text is fluent and natural.  
 
 Here is the text to simplify:
 {text}
@@ -61,7 +62,9 @@ Candidate List:
 
   const simplifyEndTime = performance.now();
   console.log(
-    `Simplification took ${(simplifyEndTime - simplifyStartTime) / 1000} seconds`
+    `Simplification took ${
+      (simplifyEndTime - simplifyStartTime) / 1000
+    } seconds`
   );
 
   return all;

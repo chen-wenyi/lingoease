@@ -242,7 +242,7 @@ export default function AudioPlayer({
   return (
     <TooltipProvider>
       <Card
-        className={`w-full mx-auto shadow-md border bg-background ${className}`}
+        className={`w-full mx-auto shadow-md border bg-background ${className} py-3`}
       >
         <CardContent className='pt-2'>
           <div className='px-2'>

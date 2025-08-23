@@ -145,7 +145,9 @@ export const createConfigSlice: StateCreator<
       } else if (message === 'Analyzing the scripts...') {
         state.simplificationProgress.number = 66;
       } else if (message === 'Simplifying the scripts...') {
-        state.simplificationProgress.number = 80;
+        state.simplificationProgress.number = 75;
+      } else if (message === 'Generating audio...') {
+        state.simplificationProgress.number = 95;
       }
     });
   },

@@ -165,14 +165,26 @@ export default function AudioVideoUpload({
 
         console.log(analyzedSimplifiedChunks);
 
-        setSimplificationProgress('');
+        setSimplificationProgress('Generating audio...');
 
         const simplifiedContent = simplified.join(' ');
 
-        const url = `/api/tts?content=${encodeURIComponent(simplifiedContent)}`;
+        const resp = await fetch('/api/tts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ content: simplifiedContent }),
+        });
+
+        const { url, downloadUrl } = await resp.json();
+
+        setSimplificationProgress('');
+
+        // const url = `/api/tts?content=${encodeURIComponent(simplifiedContent)}`;
         // const url = `https://gggr3f0tgjgai8sk.public.blob.vercel-storage.com/ted1-aIKJe4NgUrJmb2e7wxFShGE3Xj6PmC.mp3`;
 
-        const downloadUrl = '';
+        // const downloadUrl = '';
 
         setIsOpen(false);
         setSimplifiedResult({

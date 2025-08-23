@@ -66,7 +66,7 @@ function SimplifiedTabContent() {
   return (
     simplifiedResult && (
       <div className='flex items-center justify-center flex-col'>
-        <div className='flex w-full items-center justify-center p-4'>
+        <div className='flex w-full items-center justify-center py-2 px-4'>
           Vocabulary Coverage:{' '}
           <span className='font-bold'>
             {(1 - Number(simplifiedResult.newWordsRate)) * 100}%
@@ -78,7 +78,7 @@ function SimplifiedTabContent() {
             title='Simplified Audio'
             downloadUrl={simplifiedResult.audioDownloadUrl}
           />
-          <div className='h-[350px] w-full rounded-md p-4 overflow-y-auto overscroll-none'>
+          <div className='h-[calc(100dvh-30rem)] w-full rounded-md p-4 overflow-y-auto overscroll-none'>
             {analysedText?.analyzedChunks.map(
               ({ text, newWords, lemmasOriginalWordsMap }, index) => (
                 <div className='mb-6 select-text' key={index}>
@@ -130,7 +130,7 @@ function OriginalTabContent() {
   return (
     file && (
       <div className='flex items-center justify-center flex-col'>
-        <div className='flex w-full items-center justify-center p-4'>
+        <div className='flex w-full items-center justify-center py-2 px-4'>
           Vocabulary Coverage:{' '}
           <span className='font-bold'>
             {analysedText && (1 - Number(analysedText.newWordsRate)) * 100}%
@@ -139,7 +139,7 @@ function OriginalTabContent() {
         <div className='flex  flex-col text-md mb-4 flex-1 w-full gap-4'>
           <AudioPlayer src={URL.createObjectURL(file)} title={file.name} />
 
-          <div className='h-[350px] w-full rounded-md p-4 overflow-y-auto overscroll-none'>
+          <div className='h-[calc(100dvh-30rem)] w-full rounded-md p-4 overflow-y-auto overscroll-none'>
             {analysedText?.analyzedChunks.map(
               ({ text, newWords, lemmasOriginalWordsMap }, index) => (
                 <div className='mb-6 select-text' key={index}>
