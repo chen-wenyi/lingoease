@@ -33,6 +33,7 @@ export default function AudioPlayer({
   downloadUrl,
   crossOrigin = 'anonymous',
   className = '',
+  type = 'audio/mpeg',
   debug = true,
 }: {
   src: string;
@@ -40,6 +41,7 @@ export default function AudioPlayer({
   downloadUrl?: string;
   crossOrigin?: '' | 'anonymous' | 'use-credentials';
   className?: string;
+  type?: string;
   debug?: boolean;
 }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -429,11 +431,12 @@ export default function AudioPlayer({
           </div>
           <audio
             ref={audioRef}
-            src={src}
             preload='metadata'
             crossOrigin={crossOrigin}
             className='hidden'
-          />
+          >
+            <source src={src} type={type} />
+          </audio>
         </CardContent>
       </Card>
     </TooltipProvider>
