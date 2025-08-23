@@ -31,6 +31,10 @@ export default function SimplifiedResult() {
             title='Simplified Audio'
             downloadUrl={simplifiedResult.audioDownloadUrl}
           />
+          <audio controls>
+            <source src={simplifiedResult.audioFileUrl} type='audio/mpeg' />
+            Your browser does not support the audio element.
+          </audio>
 
           {/* <ScrollArea className='h-[350px] w-full rounded-md p-4 overscroll-none'> */}
           <div className='h-[350px] w-full rounded-md p-4 overflow-y-auto overscroll-none'>
