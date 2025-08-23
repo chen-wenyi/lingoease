@@ -82,12 +82,14 @@ export default function StepIndicator() {
       )}
       <div
         className={clsx(
-          'flex flex-col justify-center items-center mt-4 w-48 gap-1',
+          'flex flex-col justify-center items-center mt-8 w-58 gap-2',
           { 'opacity-0': simplificationProgress.number === 0 }
         )}
       >
-        <div className='animate-pulse'>{simplificationProgress.message}</div>
         <Progress value={simplificationProgress.number} />
+        <div className='animate-pulse text-sm text-nowrap'>
+          {simplificationProgress.message}
+        </div>
       </div>
     </div>
   );

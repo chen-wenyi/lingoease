@@ -52,8 +52,6 @@ export default function AudioVideoUpload({
   const [simplifying, startSimplifyTransition] = useTransition();
   const setSimplifiedResult = useStore((state) => state.setSimplifiedResult);
 
-  const [debugContent, setDebugContent] = useState('');
-
   const onFileUpload = async (file: File | null) => {
     if (!file) return;
     setFile(file);
@@ -87,17 +85,15 @@ export default function AudioVideoUpload({
 
   const startSimplify = () => {
     updateCurrentStep();
+    setIsOpen(false);
     startSimplifyTransition(async () => {
       // const transcription = await transcribe(fileUrl);
-      setIsOpen(false);
       try {
         setSimplificationProgress('Extracting the scripts from audio...');
 
         const form = new FormData();
 
-        setDebugContent('arrayBuffer');
         const file_ = await file?.arrayBuffer();
-        setDebugContent('append form');
 
         if (file_) {
           form.append(
@@ -107,8 +103,6 @@ export default function AudioVideoUpload({
           );
         }
         form.append('filename', file!.name);
-
-        setDebugContent('fetching');
 
         const res = await fetch('/api/transcribe', {
           method: 'POST',
@@ -167,18 +161,11 @@ export default function AudioVideoUpload({
 
         console.log(analyzedSimplifiedChunks);
 
-        console.log('------------- tts... ------------- ');
-
         setSimplificationProgress('');
 
         const simplifiedContent = simplified.join(' ');
-        // const ttsResp = await tts(simplified.join(' '));
-
-        // if (ttsResp) {
-        // const { url, downloadUrl } = ttsResp;
 
         const url = `/api/tts?content=${encodeURIComponent(simplifiedContent)}`;
-        // const url = `https://gggr3f0tgjgai8sk.public.blob.vercel-storage.com/lingoease-simplified-mee3til75lmm.ogg`;
 
         const downloadUrl = '';
 
@@ -193,13 +180,6 @@ export default function AudioVideoUpload({
         });
         updateCurrentStep();
       } catch (error) {
-        const err = error as Error;
-        setDebugContent(
-          JSON.stringify({
-            message: err?.message,
-            stack: err?.stack,
-          })
-        );
         console.error('Error during simplification:', error);
         // Include stack if available for more detail
         const description = (error as Error)?.message ?? String(error);
@@ -227,7 +207,7 @@ export default function AudioVideoUpload({
             Upload Audio/Video
             <Instructions />
           </DrawerTitle>
-          <DrawerDescription>{debugContent}</DrawerDescription>
+          <DrawerDescription></DrawerDescription>
         </DrawerHeader>
         <div className='flex h- px-8 w-full flex-col gap-4'>
           {file ? (

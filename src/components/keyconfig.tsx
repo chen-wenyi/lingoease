@@ -48,7 +48,10 @@ import { Textarea } from './ui/textarea';
 
 export default function Keyconfig({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [mode, setMode] = useState<'select' | 'create'>('select');
+  const apikeys = useStore((state) => state.apikeys);
+  const [mode, setMode] = useState<'select' | 'create'>(
+    apikeys.length > 0 ? 'select' : 'create'
+  );
 
   return (
     <Drawer onOpenChange={setIsOpen} open={isOpen}>
