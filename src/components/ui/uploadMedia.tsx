@@ -8,7 +8,8 @@ interface UploadCardProps {
 }
 
 export default function UploadMedia({
-  accept = '.flac,.m4a,.mp3,.mp4,.mpeg,.mpga,.oga,.ogg,.wav,.webm',
+  // accept = '.flac,.m4a,.mp3,.mp4,.mpeg,.mpga,.oga,.ogg,.wav,.webm',
+  accept = 'audio/ogg,application/ogg,audio/webm,video/webm,.oga,.ogg,.opus,.webm,.mp3,.m4a,.wav,.flac,.mp4,.mpeg,.mpga',
   onChange,
 }: UploadCardProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
