@@ -103,6 +103,7 @@ export default function AudioPlayer({
     const onLoadedMeta = () => {
       setDuration(a.duration || 0);
       updateBuffered();
+      setLoading(false);
       setDebugInfo({ readyState: a.readyState, networkState: a.networkState });
     };
     const onLoadedData = () => {
