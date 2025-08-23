@@ -25,7 +25,7 @@ export async function tts(content: string) {
     instructions:
       'Speak like a TED Talk presenter: inspiring, conversational, engaging, with natural pauses and clear emphasis on key ideas.',
     input: content,
-    response_format: 'opus',
+    response_format: 'mp3',
     stream_format: 'audio',
   });
 

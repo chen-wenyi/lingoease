@@ -163,8 +163,8 @@ export default function AudioVideoUpload({
         // if (ttsResp) {
         // const { url, downloadUrl } = ttsResp;
 
-        // const url = `/api/tts?content=${encodeURIComponent(simplifiedContent)}`;
-        const url = `https://gggr3f0tgjgai8sk.public.blob.vercel-storage.com/lingoease-simplified-mee3til75lmm.ogg`;
+        const url = `/api/tts?content=${encodeURIComponent(simplifiedContent)}`;
+        // const url = `https://gggr3f0tgjgai8sk.public.blob.vercel-storage.com/lingoease-simplified-mee3til75lmm.ogg`;
 
         const downloadUrl = '';
 
