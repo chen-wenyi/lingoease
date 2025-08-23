@@ -1,49 +1,68 @@
-import { useTransition } from "react";
-import { simplify } from "~/actions/simplify";
-import { useStore } from "~/store";
-import { Button } from "./ui/button";
-import { ScrollArea } from "./ui/scroll-area";
+import { useStore } from '@/store';
+
+import { analyze } from '@/actions/llm/analyze';
+import { useEffect, useState } from 'react';
+import Highlighter, { HighlighterProps } from 'react-highlight-words';
+import AudioPlayer from './ui/audioPlayer';
 
 export default function SimplifiedResult() {
-  const content = useStore((state) => state.content);
-  const activeApiKeyId = useStore((state) => state.activeApiKeyId);
-  const apikey = useStore((state) =>
-    state.apikeys.find((key) => key.id === activeApiKeyId),
-  )!;
-  const updateCurrentStep = useStore((state) => state.updateCurrentStep);
-  const simplifiedContent = useStore((state) => state.simplifiedContent);
-  const setSimplifiedContent = useStore((state) => state.setSimplifiedContent);
+  const simplifiedResult = useStore((state) => state.simplifiedResult);
+  const chunks = simplifiedResult?.simplifiedText.map((s) => s.text);
 
-  const [isPending, startTransition] = useTransition();
+  const wordFreq = useStore((state) => state.wordFreq);
 
-  const onRegenerate = async () => {
-    startTransition(async () => {
-      if (apikey) {
-        const res = await simplify(content);
-        startTransition(() => {
-          setSimplifiedContent(res);
-          updateCurrentStep();
-        });
-      }
-    });
-  };
+  const [analysedText, setAnalysedText] =
+    useState<Awaited<ReturnType<typeof analyze>>>();
+
+  useEffect(() => {
+    if (chunks) {
+      analyze(chunks, wordFreq).then((result) => {
+        setAnalysedText(result);
+      });
+    }
+  }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center">
-      {simplifiedContent && (
-        <div className="text-md mb-4 flex-1">
-          <ScrollArea className="h-[300px] w-full rounded-md border p-4">
-            {simplifiedContent}
-          </ScrollArea>
+    <div className='flex flex-col items-center justify-center w-full px-8 overscroll-none'>
+      {simplifiedResult?.audioFileUrl && (
+        <div className='flex  flex-col text-md mb-4 flex-1 w-full gap-4'>
+          <AudioPlayer
+            src={simplifiedResult.audioFileUrl}
+            title='Simplified Audio'
+            downloadUrl={simplifiedResult.audioDownloadUrl}
+          />
+
+          {/* <ScrollArea className='h-[350px] w-full rounded-md p-4 overscroll-none'> */}
+          <div className='h-[350px] w-full rounded-md p-4 overflow-y-auto overscroll-none'>
+            {analysedText?.analyzedChunks.map(
+              ({ text, newWords, lemmasOriginalWordsMap }, index) => (
+                <div className='mb-6 select-text' key={index}>
+                  <Highlighter
+                    highlightClassName='YourHighlightClass'
+                    searchWords={newWords.map(
+                      (word) =>
+                        new RegExp(
+                          `\\b${lemmasOriginalWordsMap.get(word) ?? ''}\\b`,
+                          'i'
+                        )
+                    )}
+                    autoEscape={false}
+                    textToHighlight={text}
+                    highlightTag={Highlight}
+                  />
+                </div>
+              )
+            )}
+          </div>
+          {/* </ScrollArea> */}
         </div>
       )}
-      <Button className="h-12 w-full" onClick={onRegenerate}>
-        {isPending ? (
-          <span className="loading loading-dots loading-sm"></span>
-        ) : (
-          "Regenerate"
-        )}
-      </Button>
     </div>
+  );
+}
+
+function Highlight({ children, highlightIndex }: HighlighterProps) {
+  return (
+    <strong className='highlighted-text text-orange-500'>{children}</strong>
   );
 }

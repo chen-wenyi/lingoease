@@ -1,19 +1,22 @@
-import { v4 as uuidv4 } from "uuid";
-import type { StateCreator } from "zustand";
-import type { ConfigSlice, StoreState } from "./typing";
+import { v4 as uuidv4 } from 'uuid';
+import type { StateCreator } from 'zustand';
+import type { ConfigSlice, StoreState } from './typing';
 
 export const createConfigSlice: StateCreator<
   StoreState,
-  [["zustand/immer", never]],
+  [['zustand/immer', never]],
   [],
   ConfigSlice
 > = (set, _) => ({
-  activeApiKeyId: "",
+  wordFreq: 1000,
+  activeApiKeyId: '',
   apikeys: [],
   currentStep: 0,
-  uploadContentType: "audioVideo",
-  content: "",
+  uploadContentType: 'audioVideo',
+  content: '',
   file: null,
+  fileUrl: '',
+  simplifiedResult: null,
   selectApiKey: (id) => {
     set((state) => {
       state.activeApiKeyId = id;
@@ -26,7 +29,7 @@ export const createConfigSlice: StateCreator<
         id,
         label,
         value,
-        status: "valid",
+        status: 'valid',
       });
     });
     return id;
@@ -35,7 +38,7 @@ export const createConfigSlice: StateCreator<
     set((state) => {
       state.apikeys = state.apikeys.filter((key) => key.id !== id);
       if (state.activeApiKeyId === id) {
-        state.activeApiKeyId = "";
+        state.activeApiKeyId = '';
       }
     });
   },
@@ -50,12 +53,12 @@ export const createConfigSlice: StateCreator<
   updateCurrentStep: () => {
     set((state) => {
       const activeApiKey = state.apikeys.find(
-        (key) => key.id === state.activeApiKeyId,
+        (key) => key.id === state.activeApiKeyId
       );
-      if (activeApiKey?.status === "valid") {
-        if (state.content) {
+      if (activeApiKey?.status === 'valid') {
+        if (state.content || state.fileUrl) {
           state.currentStep = 2;
-          if (state.simplifiedContent) {
+          if (state.simplifiedResult?.audioFileUrl) {
             state.currentStep = 3;
           }
         } else {
@@ -82,7 +85,7 @@ export const createConfigSlice: StateCreator<
   setContent: (content) => {
     set((state) => {
       if (!content) {
-        state.simplifiedContent = "";
+        state.simplifiedResult = null;
       }
       state.content = content;
     });
@@ -92,9 +95,37 @@ export const createConfigSlice: StateCreator<
       state.file = file;
     });
   },
-  setSimplifiedContent: (content) => {
+  setFileUrl: (url) => {
     set((state) => {
-      state.simplifiedContent = content;
+      state.fileUrl = url;
+    });
+  },
+  setSimplifiedResult: ({
+    url,
+    downloadUrl,
+    simplifiedText,
+    totalLemmasCount,
+    totalNewWordsCount,
+    newWordsRate,
+  }) => {
+    set((state) => {
+      state.simplifiedResult = {
+        audioFileUrl: url,
+        audioDownloadUrl: downloadUrl,
+        simplifiedText,
+        totalLemmasCount,
+        totalNewWordsCount,
+        newWordsRate,
+      };
+    });
+  },
+  resetAll: () => {
+    set((state) => {
+      state.currentStep = 1;
+      state.content = '';
+      state.file = null;
+      state.fileUrl = '';
+      state.simplifiedResult = null;
     });
   },
 });

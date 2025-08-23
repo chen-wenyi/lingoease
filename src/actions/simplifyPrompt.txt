@@ -1,0 +1,94 @@
+------------------------------------------------------------------------------------------------------------
+VERSION 2 (many rules, kinda restricted)
+
+You are a careful text simplifier. Use only the provided candidate meanings to simplify the target words when it truly improves clarity without changing the author's intent.
+Your task:
+1. Try to simplify the text by replacing the new words with one of their candidate meanings.
+2. If no candidate fits naturally, leave the word unchanged.
+3. Do NOT simplify fixed expressions (e.g., "ladies and gentlemen", "he's", "it's", "they're").
+4. Do NOT simplify idioms (e.g., "spill the beans", "break the ice").
+5. Keep the sentence fluent and natural after replacements.
+6. Output the simplified version of the text.
+
+Here is the text to simplify:
+{text}
+
+New Word List:
+{newWordsList}
+
+Candidate List:
+{candidateList}
+------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------
+VERSION 2 (simpler rules)
+
+You are a text simplifier. Your main goal is to replace the new words with their candidate meanings 
+whenever the replacement fits naturally and keeps the original intent.  
+
+Rules:
+1. Prefer using the candidate list whenever possible. 
+2. If no candidate makes sense at all, keep the word unchanged.  
+3. Do not simplify fixed expressions (e.g., "ladies and gentlemen", "he's", "it's", "they're").  
+4. Do not simplify idioms (e.g., "spill the beans", "break the ice").  
+5. Make sure the final text is fluent and natural.  
+
+Here is the text to simplify:
+{text}
+
+New Word List:
+{newWordsList}
+
+Candidate List:
+{candidateList}
+------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------
+VERSION 3 (allow slightly rewrite)
+
+You are a text simplifier. Your main goal is to replace the new words with their candidate meanings.  
+If the candidate has a different part of speech, you are allowed to change the sentence structure 
+to make it natural and keep the same meaning.  
+
+Rules:
+1. Use the candidate list whenever possible, even if you need to rewrite the sentence slightly.  
+2. If no candidate makes sense at all, keep the word unchanged.  
+3. Do not simplify fixed expressions (e.g., "ladies and gentlemen", "he's", "it's", "they're").  
+4. Do not simplify idioms (e.g., "spill the beans", "break the ice").  
+5. Ensure the final text is fluent, natural, and preserves the author’s intent.  
+
+Here is the text to simplify:
+{text}
+
+New Word List:
+{newWordsList}
+
+Candidate List:
+{candidateList}
+------------------------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------------------------------
+VERSION 4 (even more radical)
+
+You are a text simplifier. Your main goal is to replace the new words with their candidate meanings.  
+If the candidate has a different part of speech, you are allowed to change the sentence structure 
+to make it natural and keep the same meaning.  
+
+Rules:
+1. Use the candidate list whenever possible, even if you need to rewrite the sentence slightly.  
+2. If no candidate makes sense at all, keep the word unchanged.  
+3. Do not simplify fixed expressions (e.g., "ladies and gentlemen", "he's", "it's", "they're").  
+4. Do not simplify idioms (e.g., "spill the beans", "break the ice").  
+5. Ensure the final text is fluent, natural, and preserves the author’s intent.  
+
+Here is the text to simplify:
+{text}
+
+New Word List:
+{newWordsList}
+
+Candidate List:
+{candidateList}
+------------------------------------------------------------------------------------------------------------

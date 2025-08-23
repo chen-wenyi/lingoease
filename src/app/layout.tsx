@@ -1,38 +1,33 @@
-import "~/styles/globals.css";
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+import './globals.css';
 
-import { type Metadata, type Viewport } from "next";
-import { Geist } from "next/font/google";
+const geistSans = Geist({
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
+});
 
-import { TRPCReactProvider } from "~/trpc/react";
+const geistMono = Geist_Mono({
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
+});
 
 export const metadata: Metadata = {
-  title: "LingoEase",
-  description: "LingoEase",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  title: 'LingoEase',
+  description: 'LingoEase',
 };
-
-export function generateViewport(): Viewport {
-  return {
-    width: "device-width",
-    userScalable: false,
-    initialScale: 1,
-    maximumScale: 1,
-    minimumScale: 1,
-  };
-}
-
-const geist = Geist({
-  subsets: ["latin"],
-  variable: "--font-geist-sans",
-});
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html lang="en" data-theme="light" className={`${geist.variable}`}>
-      <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+    <html lang='en' data-theme='light'>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        {children}
       </body>
     </html>
   );

@@ -1,24 +1,26 @@
-"use client";
+'use client';
 
-import Cookies from "js-cookie";
-import { useEffect } from "react";
-import { FaCheck } from "react-icons/fa";
-import { toast } from "sonner";
-import { validateOpenAIAPIKey } from "~/actions/keyValidation";
-import { useStore } from "~/store";
-import AudioVideoUpload from "./audioAudioUpload";
-import Keyconfig from "./keyconfig";
-import TextUpload from "./textUpload";
-import { Toaster } from "./ui/sonner";
+import { validateOpenAIAPIKey } from '@/actions/keyValidation';
+import { useStore } from '@/store';
+import Cookies from 'js-cookie';
+import { useEffect } from 'react';
+import { FaCheck } from 'react-icons/fa';
+import { toast } from 'sonner';
+import AudioVideoUpload from './audioAudioUpload';
+import Keyconfig from './keyconfig';
+import SimplifiedResult from './SimplifiedResult';
+import TextUpload from './textUpload';
+import { Toaster } from './ui/sonner';
 
 export default function StepIndicator() {
   const currentStep = useStore((state) => state.currentStep);
+  const simplifiedResult = useStore((state) => state.simplifiedResult);
   const selectedContentType = useStore((state) => state.uploadContentType);
   useAPIKeysValidation();
 
   const stepInfo = [
     {
-      desc: "Set key",
+      desc: 'Set key',
       step: (
         <Keyconfig>
           <div>Set Key</div>
@@ -27,9 +29,9 @@ export default function StepIndicator() {
       status: getStepStatus(currentStep, 0),
     },
     {
-      desc: "Upload",
+      desc: 'Upload',
       step:
-        selectedContentType === "audioVideo" ? (
+        selectedContentType === 'audioVideo' ? (
           <AudioVideoUpload>
             <div>Upload</div>
           </AudioVideoUpload>
@@ -41,57 +43,63 @@ export default function StepIndicator() {
       status: getStepStatus(currentStep, 1),
     },
     {
-      desc: "Simplify",
-      step: "Simplify",
+      desc: 'Simplify',
+      step: 'Simplify',
       status: getStepStatus(currentStep, 2),
     },
   ];
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center">
+    <div className='flex flex-1 flex-col items-center justify-center w-full'>
       <Toaster />
-      <ul className="steps steps-vertical">
-        {stepInfo.map((info, index) => (
-          <li key={index} className={getStepClass(info.status)}>
-            <span className="step-icon">
-              {info.status === "completed" && <FaCheck />}
-              {info.status === "inprogress" && (
-                <span className="loading loading-ring loading-lg"></span>
+      {!simplifiedResult?.audioFileUrl ? (
+        <ul className='steps steps-vertical'>
+          {stepInfo.map((info, index) => (
+            <li key={index} className={getStepClass(info.status)}>
+              <span className='step-icon'>
+                {info.status === 'completed' && <FaCheck />}
+                {info.status === 'inprogress' && (
+                  <span className='loading loading-ring loading-lg'></span>
+                )}
+              </span>
+              {info.status === 'pending' ? (
+                <span className='font-semibold text-gray-400'>{info.desc}</span>
+              ) : (
+                <span className='cursor-pointer font-semibold'>
+                  {info.step}
+                </span>
               )}
-            </span>
-            {info.status === "pending" ? (
-              <span className="font-semibold text-gray-400">{info.desc}</span>
-            ) : (
-              <span className="cursor-pointer font-semibold">{info.step}</span>
-            )}
-          </li>
-        ))}
-      </ul>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <SimplifiedResult />
+      )}
     </div>
   );
 }
 
 function getStepClass(status: string) {
   switch (status) {
-    case "completed":
-      return "step step-neutral";
-    case "inprogress":
-      return "step step-neutral";
-    case "pending":
-      return "step";
+    case 'completed':
+      return 'step step-neutral';
+    case 'inprogress':
+      return 'step step-neutral';
+    case 'pending':
+      return 'step';
     default:
-      return "step";
+      return 'step';
   }
 }
 
 function getStepStatus(currentStep: number, stepIndex: number) {
   if (stepIndex < currentStep) {
-    return "completed";
+    return 'completed';
   }
   if (stepIndex === currentStep) {
-    return "inprogress";
+    return 'inprogress';
   }
-  return "pending";
+  return 'pending';
 }
 
 function useAPIKeysValidation() {
@@ -104,23 +112,23 @@ function useAPIKeysValidation() {
   useEffect(() => {
     if (activeApiKey) {
       switch (activeApiKey.status) {
-        case "pending":
+        case 'pending':
           void validateOpenAIAPIKey(activeApiKey.value).then((isValid) => {
-            updateApiKeyStatus(activeApiKeyId, isValid ? "valid" : "invalid");
+            updateApiKeyStatus(activeApiKeyId, isValid ? 'valid' : 'invalid');
             updateCurrentStep();
             if (!isValid) {
-              Cookies.remove("api-key");
-              toast.error("Current API Key is invalid. Please check.");
+              Cookies.remove('api-key');
+              toast.error('Current API Key is invalid. Please check.');
             } else {
-              Cookies.set("api-key", activeApiKey.value);
+              Cookies.set('api-key', activeApiKey.value);
             }
           });
           break;
-        case "valid":
-          Cookies.set("api-key", activeApiKey.value);
+        case 'valid':
+          Cookies.set('api-key', activeApiKey.value);
           break;
-        case "invalid":
-          Cookies.remove("api-key");
+        case 'invalid':
+          Cookies.remove('api-key');
       }
     }
   }, [activeApiKey, activeApiKeyId, updateApiKeyStatus, updateCurrentStep]);
