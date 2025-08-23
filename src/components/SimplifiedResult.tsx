@@ -32,7 +32,7 @@ export default function SimplifiedResult() {
             downloadUrl={simplifiedResult.audioDownloadUrl}
           />
           <audio controls>
-            <source src={simplifiedResult.audioFileUrl} type='audio/mpeg' />
+            <source src={simplifiedResult.audioFileUrl} />
             Your browser does not support the audio element.
           </audio>
 
