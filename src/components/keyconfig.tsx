@@ -127,7 +127,11 @@ function KeySelector() {
       <SelectTrigger className='w-full overflow-hidden sm:w-full'>
         <SelectValue placeholder='Select API Key' />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent
+        onPointerDownOutside={(e) => {
+          e.stopPropagation();
+        }}
+      >
         {apikeys.length > 0 ? (
           apikeys.map((key) => (
             <SelectItem key={key.id} value={key.id}>
