@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { StateCreator } from 'zustand';
-import type { ConfigSlice, StoreState } from './typing';
+import type { ConfigSlice, OutputOptions, StoreState } from './typing';
+import { OUTPUT_STYLES } from './typing';
 
 export const createConfigSlice: StateCreator<
   StoreState,
@@ -8,7 +9,6 @@ export const createConfigSlice: StateCreator<
   [],
   ConfigSlice
 > = (set, _) => ({
-  wordFreq: 1000,
   activeApiKeyId: '',
   apikeys: [],
   currentStep: 0,
@@ -16,6 +16,11 @@ export const createConfigSlice: StateCreator<
   content: '',
   file: null,
   fileUrl: '',
+  outputOptions: {
+    level: { level: 'Beginner', wordFreq: 500 },
+    voice: 'alloy',
+    style: OUTPUT_STYLES[0],
+  } satisfies OutputOptions,
   originalChunks: [],
   simplifiedResult: null,
   simplificationProgress: {
@@ -154,6 +159,11 @@ export const createConfigSlice: StateCreator<
   setOriginalChunks: (chunks) => {
     set((state) => {
       state.originalChunks = chunks;
+    });
+  },
+  setOutputOptions: (opts) => {
+    set((state) => {
+      state.outputOptions = { ...state.outputOptions, ...opts };
     });
   },
 });

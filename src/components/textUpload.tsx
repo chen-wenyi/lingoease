@@ -24,7 +24,9 @@ export default function TextUpload({
 }: {
   children: React.ReactNode;
 }) {
-  const wordFreq = useStore((state) => state.wordFreq);
+  const wordFreq = useStore((state) => state.outputOptions.level.wordFreq);
+  const voice = useStore((state) => state.outputOptions.voice);
+  const style = useStore((state) => state.outputOptions.style);
 
   const content = useStore((state) => state.content);
   const setContent = useStore((state) => state.setContent);
@@ -65,7 +67,7 @@ export default function TextUpload({
       console.log(analyzedSimplifiedChunks);
 
       console.log('------------- tts... ------------- ');
-      const ttsResp = await tts(simplified.join(' '));
+      const ttsResp = await tts(simplified.join(' '), { voice, style });
 
       if (ttsResp) {
         const { url, downloadUrl } = ttsResp;

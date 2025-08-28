@@ -50,7 +50,7 @@ function SimplifiedTabContent() {
   const simplifiedResult = useStore((state) => state.simplifiedResult);
   const chunks = simplifiedResult?.simplifiedText.map((s) => s.text);
 
-  const wordFreq = useStore((state) => state.wordFreq);
+  const wordFreq = useStore((state) => state.outputOptions.level.wordFreq);
 
   const [analysedText, setAnalysedText] =
     useState<Awaited<ReturnType<typeof analyze>>>();
@@ -114,7 +114,7 @@ function OriginalTabContent() {
     [originalChunks]
   );
 
-  const wordFreq = useStore((state) => state.wordFreq);
+  const wordFreq = useStore((state) => state.outputOptions.level.wordFreq);
 
   const [analysedText, setAnalysedText] =
     useState<Awaited<ReturnType<typeof analyze>>>();

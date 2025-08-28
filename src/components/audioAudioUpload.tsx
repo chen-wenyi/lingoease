@@ -3,11 +3,13 @@
 import { analyzeAndFindCandidateWords } from '@/actions/llm/analyzeAndFindCandidateWords';
 import { segment } from '@/actions/llm/segment';
 import { simplify } from '@/actions/llm/simplify';
+import { tts } from '@/actions/llm/tts';
 import { analyzeChunks } from '@/actions/llm/utils';
 import { useStore } from '@/store';
 import { useState, useTransition } from 'react';
 import { FaQuestionCircle } from 'react-icons/fa';
 import { toast } from 'sonner';
+import AudioOptions from './AudioOptions';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -37,9 +39,11 @@ export default function AudioVideoUpload({
   children: React.ReactNode;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const wordFreq = useStore((state) => state.wordFreq);
+  const wordFreq = useStore((state) => state.outputOptions.level.wordFreq);
   const file = useStore((state) => state.file);
   const fileUrl = useStore((state) => state.fileUrl);
+  const voice = useStore((state) => state.outputOptions.voice);
+  const style = useStore((state) => state.outputOptions.style);
   const setFile = useStore((state) => state.setFile);
   const setFileUrl = useStore((state) => state.setFileUrl);
   const updateCurrentStep = useStore((state) => state.updateCurrentStep);
@@ -111,10 +115,6 @@ export default function AudioVideoUpload({
           body: form,
         });
 
-        // const res = await Axios.post('/api/transcribe', form, {
-        //   headers: { 'Content-Type': 'multipart/form-data' },
-        // });
-
         const transcription = await res.json();
 
         // const transcription = await res.data;
@@ -169,15 +169,15 @@ export default function AudioVideoUpload({
 
         const simplifiedContent = simplified.join(' ');
 
-        const resp = await fetch('/api/tts', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ content: simplifiedContent }),
-        });
+        const ttsResp = await tts(simplifiedContent, { voice, style });
 
-        const { url, downloadUrl } = await resp.json();
+        if (!ttsResp) {
+          console.error('TTS failed');
+          toast.error('TTS failed');
+          return;
+        }
+
+        const { url, downloadUrl } = ttsResp;
 
         setSimplificationProgress('');
 
@@ -239,6 +239,8 @@ export default function AudioVideoUpload({
             <UploadMedia onChange={onFileUpload} />
           )}
         </div>
+        <AudioOptions />
+
         <DrawerFooter className='px-8 flex gap-2 flex-row'>
           {file && (
             <Button
@@ -299,13 +301,21 @@ function Instructions() {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AudioPlayer
-            src={`https://gggr3f0tgjgai8sk.public.blob.vercel-storage.com/ted1-aIKJe4NgUrJmb2e7wxFShGE3Xj6PmC.mp3`}
-            title='Generated Speech'
-          />
           <AlertDialogCancel>Got it</AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   );
+}
+
+async function httpTTS(simplifiedContent: string) {
+  const resp = await fetch('/api/tts', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ content: simplifiedContent }),
+  });
+
+  return await resp.json();
 }

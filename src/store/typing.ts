@@ -16,7 +16,7 @@ export type ConfigSlice = {
   content: string;
   file: File | null;
   fileUrl: string;
-  wordFreq: 500 | 1000;
+  outputOptions: OutputOptions;
   simplificationProgress: {
     message: SimplificationProgressMessage;
     number: number;
@@ -62,6 +62,54 @@ export type ConfigSlice = {
   resetAll: () => void;
   setSimplificationProgress: (message: SimplificationProgressMessage) => void;
   setOriginalChunks: (chunks: { text: string; newWords: string[] }[]) => void;
+  setOutputOptions: (opts: Partial<OutputOptions>) => void;
 };
 
 export type StoreState = ConfigSlice;
+
+// Output options used for audio generation and guidance
+// Output level object with explicit vocabulary frequency
+export const OUTPUT_LEVELS = [
+  { level: 'Beginner', wordFreq: 500 },
+  { level: 'Elementary', wordFreq: 1000 },
+] as const;
+export type OutputLevel = (typeof OUTPUT_LEVELS)[number];
+
+// Centralized voice options
+export const OUTPUT_VOICES = [
+  'alloy',
+  'ash',
+  'ballad',
+  'coral',
+  'echo',
+  'sage',
+  'shimmer',
+  'verse',
+] as const;
+export type OutputVoice = (typeof OUTPUT_VOICES)[number];
+
+// Centralized style options with instructions
+export const OUTPUT_STYLES = [
+  {
+    name: 'Teacher',
+    instruction:
+      'Speak like a patient English teacher: clear pronunciation, slightly slower than normal, with gentle pauses between phrases and emphasis on key vocabulary.',
+  },
+  {
+    name: 'Pronunciation Coach',
+    instruction:
+      'Speak like a pronunciation coach: slow and deliberate, with exaggerated clarity on vowel and consonant sounds, pausing briefly after each sentence.',
+  },
+  {
+    name: 'Audiobook',
+    instruction:
+      'Speak like an audiobook narrator for beginners: warm and engaging, slightly slower than conversational pace, with natural rhythm and clear emphasis on sentence structure.',
+  },
+] as const;
+export type OutputStyle = (typeof OUTPUT_STYLES)[number];
+
+export type OutputOptions = {
+  level: OutputLevel;
+  voice: OutputVoice;
+  style: OutputStyle;
+};

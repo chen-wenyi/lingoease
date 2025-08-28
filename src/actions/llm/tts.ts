@@ -1,14 +1,17 @@
 // ...existing code...
 'use server';
 
+import { timeId } from '@/lib/utils';
 import { put } from '@vercel/blob';
 import { cookies } from 'next/headers';
-import type { ReadableStream as WebReadableStream } from 'node:stream/web';
 import OpenAI from 'openai';
-import { toFile } from 'openai/uploads';
-import { Readable } from 'stream';
 
-export async function tts(content: string) {
+import type { OutputOptions } from '@/store/typing';
+
+export async function tts(
+  content: string,
+  opts?: Pick<OutputOptions, 'voice' | 'style'>
+) {
   const apiKey = (await cookies()).get('api-key')?.value;
 
   if (!apiKey) {
@@ -20,9 +23,10 @@ export async function tts(content: string) {
 
   const mp3Response = await openai.audio.speech.create({
     model: 'gpt-4o-mini-tts',
-    voice: 'alloy',
+    voice: opts?.voice ?? 'alloy',
     speed: 1,
     instructions:
+      opts?.style?.instruction ??
       'Speak like a TED Talk presenter: inspiring, conversational, engaging, with natural pauses and clear emphasis on key ideas.',
     input: content,
     response_format: 'mp3',
@@ -35,27 +39,16 @@ export async function tts(content: string) {
   if (mp3Response.body) {
     console.log('TTS response received, uploading to blob storage...');
     const putStartTime = performance.now();
-    const path = `lingoease-simplified-${timeId()}.ogg`;
+    const path = `lingoease-simplified-${timeId()}.mp3`;
 
-    const webStream = mp3Response.body as WebReadableStream<Uint8Array>;
-    const nodeStream = Readable.fromWeb(webStream);
-    const file = await toFile(nodeStream, path);
-
-    const { url, downloadUrl } = await put(path, file, {
+    const { url, downloadUrl } = await put(path, mp3Response.body, {
       access: 'public',
-      multipart: true,
-      cacheControlMaxAge: 60 * 10,
-      contentType: 'audio/ogg',
     });
 
     const putTime = (performance.now() - putStartTime) / 1000;
     console.log(
-      `Uploaded speech.ogg to ${url} in ${putTime.toFixed(2)} seconds`
+      `Uploaded speech.mp3 to ${url} in ${putTime.toFixed(2)} seconds`
     );
     return { url, downloadUrl };
   }
-}
-// ...existing code...
-function timeId() {
-  return Date.now().toString(36) + Math.random().toString(36).substring(2, 6);
 }

@@ -329,13 +329,13 @@ export default function AudioPlayer({
                       variant='ghost'
                       size='icon'
                       className='rounded-lg h-7 w-7'
+                      disabled={!downloadUrl}
                       onClick={() => {
-                        const a = audioRef.current;
-                        const url = downloadUrl ?? a?.currentSrc ?? src;
+                        const url = downloadUrl;
                         if (!url) return;
                         const link = document.createElement('a');
                         link.href = url;
-                        link.download = 'lingoease-simplified.ogg';
+                        link.download = 'lingoease-simplified.mp3';
                         document.body.appendChild(link);
                         link.click();
                         link.remove();
