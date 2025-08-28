@@ -53,16 +53,32 @@ export default function Keyconfig({ children }: { children: React.ReactNode }) {
     apikeys.length > 0 ? 'select' : 'create'
   );
 
+  useEffect(() => {
+    if (isOpen) {
+      // Reset the mode when the drawer opens
+      setMode(apikeys.length > 0 ? 'select' : 'create');
+    }
+  }, [isOpen, apikeys.length]);
+
   return (
     <Drawer onOpenChange={setIsOpen} open={isOpen}>
       <DrawerTrigger className='cursor-pointer' asChild>
         {children}
       </DrawerTrigger>
       <DrawerContent
+        onFocusOutside={(e) => {
+          // Prevent drawer from closing due to blur/focus leaving content
+          e.preventDefault();
+        }}
         onInteractOutside={(e) => {
+          console.log(111);
+          debugger;
           const target = e.target as HTMLElement | null;
-          // Prevent closing the drawer when interacting with the Select portal content
-          if (target && target.closest('[data-slot="select-content"]')) {
+          // Only allow closing when clicking the drawer overlay (mask)
+          const clickedOverlay = !!target?.closest(
+            '[data-slot="drawer-overlay"]'
+          );
+          if (!clickedOverlay) {
             e.preventDefault();
           }
         }}
