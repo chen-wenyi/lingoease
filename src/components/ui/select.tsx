@@ -56,8 +56,14 @@ function SelectContent({
   position = "popper",
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Content>) {
+  const [container, setContainer] = React.useState<HTMLElement | null>(null)
+  React.useEffect(() => {
+    // Prefer rendering within the drawer to avoid outside-click dismissal
+    const el = document.querySelector<HTMLElement>('[data-slot="drawer-content"]')
+    setContainer(el)
+  }, [])
   return (
-    <SelectPrimitive.Portal>
+    <SelectPrimitive.Portal container={container ?? undefined}>
       <SelectPrimitive.Content
         data-slot="select-content"
         className={cn(
