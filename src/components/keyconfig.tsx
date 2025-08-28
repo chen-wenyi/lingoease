@@ -131,6 +131,10 @@ function KeySelector() {
         onPointerDownOutside={(e) => {
           e.stopPropagation();
         }}
+        onBlur={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+        }}
       >
         {apikeys.length > 0 ? (
           apikeys.map((key) => (
