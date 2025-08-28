@@ -218,7 +218,11 @@ export default function AudioVideoUpload({
       <DrawerTrigger className='cursor-pointer' asChild>
         {children}
       </DrawerTrigger>
-      <DrawerContent>
+      <DrawerContent
+        onInteractOutside={(e) => {
+          e.preventDefault();
+        }}
+      >
         <DrawerHeader>
           <DrawerTitle className='flex items-center justify-center gap-2'>
             Upload Audio/Video

@@ -65,7 +65,11 @@ export default function Keyconfig({ children }: { children: React.ReactNode }) {
       <DrawerTrigger className='cursor-pointer' asChild>
         {children}
       </DrawerTrigger>
-      <DrawerContent>
+      <DrawerContent
+        onInteractOutside={(e) => {
+          e.preventDefault();
+        }}
+      >
         <DrawerHeader>
           <DrawerTitle className='flex items-center justify-center gap-2'>
             OpenAI APIKey Setting
