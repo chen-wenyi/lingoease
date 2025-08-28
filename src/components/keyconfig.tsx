@@ -58,7 +58,15 @@ export default function Keyconfig({ children }: { children: React.ReactNode }) {
       <DrawerTrigger className='cursor-pointer' asChild>
         {children}
       </DrawerTrigger>
-      <DrawerContent>
+      <DrawerContent
+        onInteractOutside={(e) => {
+          const target = e.target as HTMLElement | null;
+          // Prevent closing the drawer when interacting with the Select portal content
+          if (target && target.closest('[data-slot="select-content"]')) {
+            e.preventDefault();
+          }
+        }}
+      >
         <DrawerHeader>
           <DrawerTitle className='flex items-center justify-center gap-2'>
             OpenAI APIKey Setting
