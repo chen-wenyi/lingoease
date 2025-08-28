@@ -10,7 +10,7 @@ import type { OutputOptions } from '@/store/typing';
 
 export async function tts(
   content: string,
-  opts?: Pick<OutputOptions, 'voice' | 'style'>
+  opts: Pick<OutputOptions, 'voice' | 'style'>
 ) {
   const apiKey = (await cookies()).get('api-key')?.value;
 
@@ -23,11 +23,9 @@ export async function tts(
 
   const mp3Response = await openai.audio.speech.create({
     model: 'gpt-4o-mini-tts',
-    voice: opts?.voice ?? 'alloy',
+    voice: opts.voice,
     speed: 1,
-    instructions:
-      opts?.style?.instruction ??
-      'Speak like a TED Talk presenter: inspiring, conversational, engaging, with natural pauses and clear emphasis on key ideas.',
+    instructions: opts.style.instruction,
     input: content,
     response_format: 'mp3',
     stream_format: 'audio',

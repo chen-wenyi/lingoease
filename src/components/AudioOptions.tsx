@@ -11,11 +11,11 @@ import {
 } from '@/components/ui/select';
 import { useStore } from '@/store';
 import {
+  OUTPUT_LEVELS,
   OUTPUT_STYLES,
   OUTPUT_VOICES,
-  OUTPUT_LEVELS,
-  type OutputVoice,
   type OutputStyle,
+  type OutputVoice,
 } from '@/store/typing';
 import React from 'react';
 
@@ -77,7 +77,7 @@ export default function AudioOptions() {
             value={voice}
             onValueChange={(v) => setOutputOptions({ voice: v as Voice })}
           >
-            <SelectTrigger className='min-w-40'>
+            <SelectTrigger className='min-w-40 capitalize'>
               <SelectValue placeholder='Select a voice' />
             </SelectTrigger>
             <SelectContent>

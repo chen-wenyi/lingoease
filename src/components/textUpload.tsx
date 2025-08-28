@@ -7,6 +7,8 @@ import { tts } from '@/actions/llm/tts';
 import { analyzeChunks } from '@/actions/llm/utils';
 import { useStore } from '@/store';
 import { useState, useTransition } from 'react';
+import { toast } from 'sonner';
+import AudioOptions from './AudioOptions';
 import { Button } from './ui/button';
 import {
   Drawer,
@@ -32,45 +34,128 @@ export default function TextUpload({
   const setContent = useStore((state) => state.setContent);
   const setSimplifiedResult = useStore((state) => state.setSimplifiedResult);
   const updateCurrentStep = useStore((state) => state.updateCurrentStep);
+  const setSimplificationProgress = useStore(
+    (state) => state.setSimplificationProgress
+  );
+  const setOriginalChunks = useStore((state) => state.setOriginalChunks);
 
   const [simplifying, startSimplifyTransition] = useTransition();
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const startSimplify = async () => {
+  // const startSimplify = async () => {
+  //   updateCurrentStep();
+  //   startSimplifyTransition(async () => {
+  //     const chunks = await segment(content);
+
+  //     console.log('chunks:');
+  //     console.log('------------- chunks ------------- ');
+  //     console.log(chunks);
+
+  //     // Analyze the chunks
+  //     const analysisRes = await analyzeAndFindCandidateWords(chunks, wordFreq);
+  //     console.log('------------- analysis ------------- ');
+  //     console.log(analysisRes);
+
+  //     const simplified = await simplify(
+  //       analysisRes.analyzedChunks.map(({ text, newWords }) => ({
+  //         text,
+  //         newWords,
+  //       })),
+  //       analysisRes.candidateMap
+  //     );
+  //     console.log('------------- simplified ------------- ');
+  //     console.log(simplified);
+
+  //     console.log('------------- analyzeSimplified ------------- ');
+
+  //     const analyzedSimplifiedChunks = analyzeChunks(simplified, wordFreq);
+  //     console.log(analyzedSimplifiedChunks);
+
+  //     console.log('------------- tts... ------------- ');
+  //     const ttsResp = await tts(simplified.join(' '), { voice, style });
+
+  //     if (ttsResp) {
+  //       const { url, downloadUrl } = ttsResp;
+
+  //       setIsOpen(false);
+  //       setSimplifiedResult({
+  //         url,
+  //         downloadUrl,
+  //         simplifiedText: analyzedSimplifiedChunks.analyzedChunks,
+  //         totalLemmasCount: analyzedSimplifiedChunks.totalLemmasCount,
+  //         totalNewWordsCount: analyzedSimplifiedChunks.totalNewWordsCount,
+  //         newWordsRate: analyzedSimplifiedChunks.newWordsRate,
+  //       });
+  //       updateCurrentStep();
+  //     }
+  //   });
+  // };
+
+  const startSimplify = () => {
     updateCurrentStep();
+    setIsOpen(false);
     startSimplifyTransition(async () => {
-      const chunks = await segment(content);
+      // const transcription = await transcribe(fileUrl);
+      try {
+        setSimplificationProgress('Segmenting the scripts...');
 
-      console.log('chunks:');
-      console.log('------------- chunks ------------- ');
-      console.log(chunks);
+        const chunks = await segment(content);
 
-      // Analyze the chunks
-      const analysisRes = await analyzeAndFindCandidateWords(chunks, wordFreq);
-      console.log('------------- analysis ------------- ');
-      console.log(analysisRes);
+        console.log('chunks:');
+        console.log('------------- chunks ------------- ');
+        console.log(chunks);
 
-      const simplified = await simplify(
-        analysisRes.analyzedChunks.map(({ text, newWords }) => ({
-          text,
-          newWords,
-        })),
-        analysisRes.candidateMap
-      );
-      console.log('------------- simplified ------------- ');
-      console.log(simplified);
+        setSimplificationProgress('Analyzing the scripts...');
 
-      console.log('------------- analyzeSimplified ------------- ');
+        // Analyze the chunks
+        const analysisRes = await analyzeAndFindCandidateWords(
+          chunks,
+          wordFreq
+        );
+        console.log('------------- analysis ------------- ');
+        console.log(analysisRes);
 
-      const analyzedSimplifiedChunks = analyzeChunks(simplified, wordFreq);
-      console.log(analyzedSimplifiedChunks);
+        setOriginalChunks(analysisRes.analyzedChunks);
 
-      console.log('------------- tts... ------------- ');
-      const ttsResp = await tts(simplified.join(' '), { voice, style });
+        setSimplificationProgress('Simplifying the scripts...');
 
-      if (ttsResp) {
+        const simplified = await simplify(
+          analysisRes.analyzedChunks.map(({ text, newWords }) => ({
+            text,
+            newWords,
+          })),
+          analysisRes.candidateMap
+        );
+        console.log('------------- simplified ------------- ');
+        console.log(simplified);
+
+        console.log('------------- analyzeSimplified ------------- ');
+
+        const analyzedSimplifiedChunks = analyzeChunks(simplified, wordFreq);
+
+        console.log(analyzedSimplifiedChunks);
+
+        setSimplificationProgress('Generating audio...');
+
+        const simplifiedContent = simplified.join(' ');
+
+        const ttsResp = await tts(simplifiedContent, { voice, style });
+
+        if (!ttsResp) {
+          console.error('TTS failed');
+          toast.error('TTS failed');
+          return;
+        }
+
         const { url, downloadUrl } = ttsResp;
+
+        setSimplificationProgress('');
+
+        // const url = `/api/tts?content=${encodeURIComponent(simplifiedContent)}`;
+        // const url = `https://gggr3f0tgjgai8sk.public.blob.vercel-storage.com/ted1-aIKJe4NgUrJmb2e7wxFShGE3Xj6PmC.mp3`;
+
+        // const downloadUrl = '';
 
         setIsOpen(false);
         setSimplifiedResult({
@@ -82,6 +167,14 @@ export default function TextUpload({
           newWordsRate: analyzedSimplifiedChunks.newWordsRate,
         });
         updateCurrentStep();
+      } catch (error) {
+        console.error('Error during simplification:', error);
+        // Include stack if available for more detail
+        const description = (error as Error)?.message ?? String(error);
+        const stack = (error as Error)?.stack;
+        toast.error('Error during simplification', {
+          description: stack ? `${description}\n\n${stack}` : description,
+        });
       }
     });
   };
@@ -106,6 +199,8 @@ export default function TextUpload({
             placeholder='Type your text here...'
           />
         </div>
+        <AudioOptions />
+
         <DrawerFooter className='px-8'>
           <Button disabled={!content || simplifying} onClick={startSimplify}>
             {simplifying ? (

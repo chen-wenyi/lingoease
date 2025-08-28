@@ -91,19 +91,24 @@ export type OutputVoice = (typeof OUTPUT_VOICES)[number];
 // Centralized style options with instructions
 export const OUTPUT_STYLES = [
   {
+    name: 'TED',
+    instruction:
+      'Speak like a TED Talk presenter: inspiring, conversational, engaging, with natural pauses and clear emphasis on key ideas.',
+  },
+  {
     name: 'Teacher',
     instruction:
       'Speak like a patient English teacher: clear pronunciation, slightly slower than normal, with gentle pauses between phrases and emphasis on key vocabulary.',
   },
   {
+    name: 'Audiobook',
+    instruction:
+      'Speak like an audiobook narrator: warm and engaging, slightly slower than conversational pace, with natural rhythm and clear emphasis on sentence structure.',
+  },
+  {
     name: 'Pronunciation Coach',
     instruction:
       'Speak like a pronunciation coach: slow and deliberate, with exaggerated clarity on vowel and consonant sounds, pausing briefly after each sentence.',
-  },
-  {
-    name: 'Audiobook',
-    instruction:
-      'Speak like an audiobook narrator for beginners: warm and engaging, slightly slower than conversational pace, with natural rhythm and clear emphasis on sentence structure.',
   },
 ] as const;
 export type OutputStyle = (typeof OUTPUT_STYLES)[number];
