@@ -71,8 +71,6 @@ export default function Keyconfig({ children }: { children: React.ReactNode }) {
           e.preventDefault();
         }}
         onInteractOutside={(e) => {
-          console.log(111);
-          debugger;
           const target = e.target as HTMLElement | null;
           // Only allow closing when clicking the drawer overlay (mask)
           const clickedOverlay = !!target?.closest(
