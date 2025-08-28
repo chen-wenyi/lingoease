@@ -72,10 +72,7 @@ export default function Keyconfig({ children }: { children: React.ReactNode }) {
         }}
         onPointerDownOutside={(e) => {
           // Only allow closing when clicking the drawer overlay (mask)
-          const originalTarget = ((e as any)?.detail?.originalEvent
-            ?.target as HTMLElement | null)
-            ? ((e as any).detail.originalEvent.target as HTMLElement)
-            : (e.target as HTMLElement | null);
+          const originalTarget = e.detail.originalEvent.target as Element;
           const isOverlay = !!originalTarget?.closest(
             '[data-slot="drawer-overlay"]'
           );
