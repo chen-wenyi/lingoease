@@ -1,9 +1,10 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import { immer } from "zustand/middleware/immer";
-import { createConfigSlice } from "./configSlice";
-import type { StoreState } from "./typing";
-import { OUTPUT_STYLES, OUTPUT_LEVELS } from "./typing";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { immer } from 'zustand/middleware/immer';
+import { createConfigSlice } from './configSlice';
+import type { StoreState } from './typing';
+import { OUTPUT_LEVELS, OUTPUT_STYLES } from './typing';
+import type { OutputLevel, OutputStyle, OutputVoice } from './typing';
 
 export const useStore = create<StoreState>()(
   persist(
@@ -11,7 +12,7 @@ export const useStore = create<StoreState>()(
       ...createConfigSlice(...args),
     })),
     {
-      name: "lingoease-store",
+      name: 'lingoease-store',
       partialize: (state) => ({
         activeApiKeyId: state.activeApiKeyId,
         apikeys: state.apikeys,
@@ -19,7 +20,7 @@ export const useStore = create<StoreState>()(
         outputOptions: state.outputOptions,
       }),
       merge: (persistedState, currentState) => {
-        if (!persistedState || typeof persistedState !== "object") {
+        if (!persistedState || typeof persistedState !== 'object') {
           return currentState;
         }
 
@@ -30,35 +31,67 @@ export const useStore = create<StoreState>()(
           apikeys:
             typedPersistedState.apikeys?.map((key) => ({
               ...key,
-              status: "pending",
+              status: 'pending',
             })) ?? [],
         } as StoreState;
 
-        // Migrate outputOptions.style from string -> object if needed
-        const po = (typedPersistedState as any).outputOptions;
-        if (po) {
-          const style = po.style;
-          if (typeof style === "string") {
-            const found = OUTPUT_STYLES.find((s) => s.name === style) ?? OUTPUT_STYLES[0];
-            merged.outputOptions = { ...merged.outputOptions, ...po, style: found };
-          } else if (style && typeof style.name === "string" && !style.instruction) {
-            const found = OUTPUT_STYLES.find((s) => s.name === style.name) ?? OUTPUT_STYLES[0];
-            merged.outputOptions = { ...merged.outputOptions, ...po, style: found };
+        // Migrate outputOptions from legacy shapes without using `any`
+        const isRecord = (v: unknown): v is Record<string, unknown> =>
+          typeof v === 'object' && v !== null;
+
+        // Safely read possible persisted outputOptions of unknown shape
+        const poUnknown: unknown =
+          isRecord(typedPersistedState) && 'outputOptions' in typedPersistedState
+            ? (typedPersistedState as Record<string, unknown>).outputOptions
+            : undefined;
+
+        if (isRecord(poUnknown)) {
+          const next = { ...merged.outputOptions };
+
+          // voice passthrough (if valid string)
+          if (typeof poUnknown.voice === 'string') {
+            next.voice = poUnknown.voice as OutputVoice;
           }
 
-          // Migrate outputOptions.level from string -> { level, wordFreq }
-          const level = po.level;
-          if (typeof level === "string") {
-            const found = OUTPUT_LEVELS.find((l) => l.level === level) ?? OUTPUT_LEVELS[0];
-            merged.outputOptions = { ...merged.outputOptions, ...po, level: found };
-          } else if (level && typeof level.level === "string" && level.wordFreq == null) {
-            const found = OUTPUT_LEVELS.find((l) => l.level === level.level) ?? OUTPUT_LEVELS[0];
-            merged.outputOptions = { ...merged.outputOptions, ...po, level: found };
+          // style migration: string -> object, or object missing instruction
+          const styleVal = poUnknown.style;
+          if (typeof styleVal === 'string') {
+            const found: OutputStyle =
+              OUTPUT_STYLES.find((s) => s.name === styleVal) ?? OUTPUT_STYLES[0];
+            next.style = found;
+          } else if (isRecord(styleVal)) {
+            const name = typeof styleVal.name === 'string' ? styleVal.name : '';
+            const hasInstruction = typeof (styleVal as { instruction?: unknown })
+              .instruction === 'string';
+            if (name && !hasInstruction) {
+              const found: OutputStyle =
+                OUTPUT_STYLES.find((s) => s.name === name) ?? OUTPUT_STYLES[0];
+              next.style = found;
+            }
           }
+
+          // level migration: string -> object, or object missing wordFreq
+          const levelVal = poUnknown.level;
+          if (typeof levelVal === 'string') {
+            const found: OutputLevel =
+              OUTPUT_LEVELS.find((l) => l.level === levelVal) ?? OUTPUT_LEVELS[0];
+            next.level = found;
+          } else if (isRecord(levelVal)) {
+            const lvl = typeof levelVal.level === 'string' ? levelVal.level : '';
+            const hasWordFreq =
+              typeof (levelVal as { wordFreq?: unknown }).wordFreq === 'number';
+            if (lvl && !hasWordFreq) {
+              const found: OutputLevel =
+                OUTPUT_LEVELS.find((l) => l.level === lvl) ?? OUTPUT_LEVELS[0];
+              next.level = found;
+            }
+          }
+
+          merged.outputOptions = next;
         }
 
         return merged;
       },
-    },
-  ),
+    }
+  )
 );
