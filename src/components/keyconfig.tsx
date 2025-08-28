@@ -65,22 +65,7 @@ export default function Keyconfig({ children }: { children: React.ReactNode }) {
       <DrawerTrigger className='cursor-pointer' asChild>
         {children}
       </DrawerTrigger>
-      <DrawerContent
-        onFocusOutside={(e) => {
-          // Prevent drawer from closing due to blur/focus leaving content
-          e.preventDefault();
-        }}
-        onPointerDownOutside={(e) => {
-          // Only allow closing when clicking the drawer overlay (mask)
-          const originalTarget = e.detail.originalEvent.target as Element;
-          const isOverlay = !!originalTarget?.closest(
-            '[data-slot="drawer-overlay"]'
-          );
-          if (!isOverlay) {
-            e.preventDefault();
-          }
-        }}
-      >
+      <DrawerContent>
         <DrawerHeader>
           <DrawerTitle className='flex items-center justify-center gap-2'>
             OpenAI APIKey Setting
@@ -127,15 +112,7 @@ function KeySelector() {
       <SelectTrigger className='w-full overflow-hidden sm:w-full'>
         <SelectValue placeholder='Select API Key' />
       </SelectTrigger>
-      <SelectContent
-        onPointerDownOutside={(e) => {
-          e.stopPropagation();
-        }}
-        onBlur={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-        }}
-      >
+      <SelectContent>
         {apikeys.length > 0 ? (
           apikeys.map((key) => (
             <SelectItem key={key.id} value={key.id}>
