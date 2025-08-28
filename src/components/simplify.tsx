@@ -2,6 +2,7 @@
 import { Progress } from '@/components/ui/progress';
 import { useStore } from '@/store';
 import clsx from 'clsx';
+import Timer from './timer';
 
 export default function Simplify() {
   const simplificationProgress = useStore(
@@ -15,7 +16,7 @@ export default function Simplify() {
       )}
     >
       <div className='animate-pulse text-sm text-nowrap'>
-        {simplificationProgress.message}
+        {simplificationProgress.message} <Timer />
       </div>
       <Progress value={simplificationProgress.number} />
     </div>
