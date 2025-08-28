@@ -70,13 +70,15 @@ export default function Keyconfig({ children }: { children: React.ReactNode }) {
           // Prevent drawer from closing due to blur/focus leaving content
           e.preventDefault();
         }}
-        onInteractOutside={(e) => {
-          const target = e.target as HTMLElement | null;
+        onPointerDownOutside={(e) => {
           // Only allow closing when clicking the drawer overlay (mask)
-          const clickedOverlay = !!target?.closest(
+          const originalTarget =
+            // @ts-expect-error Radix adds originalEvent to this event
+            (e.originalEvent?.target as HTMLElement | null) ?? null;
+          const isOverlay = !!originalTarget?.closest(
             '[data-slot="drawer-overlay"]'
           );
-          if (!clickedOverlay) {
+          if (!isOverlay) {
             e.preventDefault();
           }
         }}
