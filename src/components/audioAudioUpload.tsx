@@ -6,6 +6,7 @@ import { simplify } from '@/actions/llm/simplify';
 import { tts } from '@/actions/llm/tts';
 import { analyzeChunks } from '@/actions/llm/utils';
 import { useStore } from '@/store';
+import { KokoroTTS } from 'kokoro-js';
 import { useState, useTransition } from 'react';
 import { FaQuestionCircle } from 'react-icons/fa';
 import { toast } from 'sonner';
@@ -288,6 +289,7 @@ function Instructions() {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
+          <Kokoro />
           <AlertDialogCancel>Got it</AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -305,4 +307,47 @@ async function httpTTS(simplifiedContent: string) {
   });
 
   return await resp.json();
+}
+
+function Kokoro() {
+  const [src, setSrc] = useState<string>('');
+
+  const generate = async () => {
+    const model_id = 'onnx-community/Kokoro-82M-v1.0-ONNX';
+
+    const startTime = Date.now();
+    console.log('Loading model...');
+    const tts = await KokoroTTS.from_pretrained(model_id, {
+      dtype: 'q8', // Options: "fp32", "fp16", "q8", "q4", "q4f16"
+      device: 'wasm', // Options: "wasm", "webgpu" (web) or "cpu" (node). If using "webgpu", we recommend using dtype="fp32".
+    });
+
+    const endTime = Date.now();
+    console.log(`Model loaded in ${(endTime - startTime) / 1000} seconds`);
+
+    const ttsStartTime = Date.now();
+    console.log('Generating audio...');
+    // Example text
+    const text =
+      "Life is like a box of chocolates. You never know what you're gonna get.";
+    const audio = await tts.generate(text, {
+      // Use `tts.list_voices()` to list all available voices
+      voice: 'af_heart',
+    });
+    const ttsEndTime = Date.now();
+    console.log(
+      `Audio generated in ${(ttsEndTime - ttsStartTime) / 1000} seconds`
+    );
+
+    const blob = audio.toBlob();
+    const audioUrl = URL.createObjectURL(blob);
+    setSrc(audioUrl);
+  };
+
+  return (
+    <>
+      {src && <audio controls src={src} />}
+      <Button onClick={generate}>Test</Button>
+    </>
+  );
 }

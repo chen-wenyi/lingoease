@@ -67,6 +67,7 @@ export default function Keyconfig({ children }: { children: React.ReactNode }) {
       </DrawerTrigger>
       <DrawerContent
         onInteractOutside={(e) => {
+          console.log(e);
           e.preventDefault();
         }}
       >
