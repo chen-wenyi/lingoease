@@ -285,7 +285,7 @@ async function kokoroTTS(text: string, model: KokoroTTS | null) {
   //   "Life is like a box of chocolates. You never know what you're gonna get.";
   const audio = await model.generate(text, {
     // Use `tts.list_voices()` to list all available voices
-    voice: 'af_heart',
+    voice: 'am_adam',
     speed: 0.7,
   });
   const ttsEndTime = Date.now();
