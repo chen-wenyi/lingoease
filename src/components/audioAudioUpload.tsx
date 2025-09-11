@@ -7,7 +7,7 @@ import { analyzeChunks } from '@/actions/llm/utils';
 import { useKokoroModel } from '@/hooks/useKokoroModel';
 import { useStore } from '@/store';
 import { KokoroTTS } from 'kokoro-js';
-import { useEffect, useState, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { FaQuestionCircle } from 'react-icons/fa';
 import { toast } from 'sonner';
 import AudioOptions from './AudioOptions';
@@ -42,17 +42,12 @@ export default function AudioVideoUpload({
   const [isOpen, setIsOpen] = useState(false);
   const wordFreq = useStore((state) => state.outputOptions.level.wordFreq);
   const file = useStore((state) => state.file);
-  const fileUrl = useStore((state) => state.fileUrl);
-  const voice = useStore((state) => state.outputOptions.voice);
-  const style = useStore((state) => state.outputOptions.style);
   const setFile = useStore((state) => state.setFile);
   const setFileUrl = useStore((state) => state.setFileUrl);
   const updateCurrentStep = useStore((state) => state.updateCurrentStep);
   const setSimplificationProgress = useStore(
     (state) => state.setSimplificationProgress
   );
-
-  const [uploading, startUploadTransition] = useTransition();
 
   const [simplifying, startSimplifyTransition] = useTransition();
   const setSimplifiedResult = useStore((state) => state.setSimplifiedResult);
@@ -61,40 +56,9 @@ export default function AudioVideoUpload({
 
   const kokoroModel = useKokoroModel();
 
-  useEffect(() => {
-    if (!kokoroModel) return;
-    toast.success('Kokoro model loaded and ready for TTS');
-  }, [kokoroModel]);
-
   const onFileUpload = async (file: File | null) => {
     if (!file) return;
     setFile(file);
-
-    // startUploadTransition(async () => {
-    //   let payload: File = file;
-    //   try {
-    //     // why do this? when uploading from google drive, the file needs to be fully downloaded
-    //     const ab = await file.arrayBuffer();
-    //     console.log('file type:', file.type);
-    //     payload = new File([ab], file.name, {
-    //       type: file.type,
-    //     });
-    //     setFile(payload);
-    //   } catch (readErr) {
-    //     // If arrayBuffer fails, fall back to original file object but log the error
-    //     console.warn(
-    //       'Could not read file with arrayBuffer, falling back to original file',
-    //       readErr
-    //     );
-    //   }
-    //   // const { url } = await upload(file.name, file, {
-    //   //   access: 'public',
-    //   //   handleUploadUrl: '/api/upload',
-    //   //   // multipart: true,
-    //   // });
-
-    //   // setFileUrl(url);
-    // });
   };
 
   const startSimplify = () => {
@@ -193,6 +157,8 @@ export default function AudioVideoUpload({
         const url = await kokoroTTS(simplifiedContent, kokoroModel);
         const downloadUrl = url;
 
+        setSimplificationProgress('');
+
         // const url = `/api/tts?content=${encodeURIComponent(simplifiedContent)}`;
         // const url = `https://gggr3f0tgjgai8sk.public.blob.vercel-storage.com/ted1-aIKJe4NgUrJmb2e7wxFShGE3Xj6PmC.mp3`;
 
@@ -262,18 +228,18 @@ export default function AudioVideoUpload({
             <Button
               variant='destructive'
               onClick={handleRemove}
-              disabled={uploading || simplifying}
+              disabled={simplifying}
             >
               Remove
             </Button>
           )}
           <Button
             className='flex-1'
-            disabled={!file || uploading}
+            disabled={!file || !kokoroModel}
             onClick={startSimplify}
           >
-            {uploading ? (
-              'Uploading...'
+            {!kokoroModel ? (
+              'Preparing Model...'
             ) : simplifying ? (
               <span className='loading loading-dots loading-xs'></span>
             ) : (
@@ -300,66 +266,10 @@ function Instructions() {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <Kokoro />
           <AlertDialogCancel>Got it</AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  );
-}
-
-async function httpTTS(simplifiedContent: string) {
-  const resp = await fetch('/api/tts', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ content: simplifiedContent }),
-  });
-
-  return await resp.json();
-}
-
-function Kokoro() {
-  const [src, setSrc] = useState<string>('');
-
-  const generate = async () => {
-    const model_id = 'onnx-community/Kokoro-82M-v1.0-ONNX';
-
-    const startTime = Date.now();
-    console.log('Loading model...');
-    const tts = await KokoroTTS.from_pretrained(model_id, {
-      dtype: 'q8', // Options: "fp32", "fp16", "q8", "q4", "q4f16"
-      device: 'wasm', // Options: "wasm", "webgpu" (web) or "cpu" (node). If using "webgpu", we recommend using dtype="fp32".
-    });
-
-    const endTime = Date.now();
-    console.log(`Model loaded in ${(endTime - startTime) / 1000} seconds`);
-
-    const ttsStartTime = Date.now();
-    console.log('Generating audio...');
-    // Example text
-    const text =
-      "Life is like a box of chocolates. You never know what you're gonna get.";
-    const audio = await tts.generate(text, {
-      // Use `tts.list_voices()` to list all available voices
-      voice: 'af_heart',
-    });
-    const ttsEndTime = Date.now();
-    console.log(
-      `Audio generated in ${(ttsEndTime - ttsStartTime) / 1000} seconds`
-    );
-
-    const blob = audio.toBlob();
-    const audioUrl = URL.createObjectURL(blob);
-    setSrc(audioUrl);
-  };
-
-  return (
-    <>
-      {src && <audio controls src={src} />}
-      <Button onClick={generate}>Test</Button>
-    </>
   );
 }
 

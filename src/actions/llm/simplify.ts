@@ -22,18 +22,15 @@ export async function simplify(
   });
 
   const systemTemplate = `
-You are a text simplifier. Your main goal is to replace the new words with their candidate meanings 
-whenever the replacement fits naturally and keeps the original intent.  
-
-Rules:
-1. Prefer using the candidate list whenever possible. 
-2. If no candidate makes sense at all, keep the word unchanged **silently**.  
-3. Do not mention that you kept the word unchanged. Just output the final sentence.  
-4. Do not replace topics when they appear in meta-phrases like “today we would talk about ___”, “our topic is ___”, “let's discuss ___”. Keep the original topic text unchanged.
-5. Do not simplify fixed expressions (e.g., "ladies and gentlemen", "he's", "it's", "they're").  
-6. Do not simplify idioms (e.g., "spill the beans", "break the ice").  
-7. Make sure the final text is fluent and natural.  
-8. Do not output explanations, reasoning, or extra comments — only output the simplified text itself.  
+You are a careful text simplifier. Use only the provided candidate meanings to simplify the target words when it truly improves clarity without changing the author's intent.
+Your task:
+1. Try to simplify the text by replacing the new words with one of their candidate meanings if it is a synonym in context.
+2. Do not replace topics when they appear in meta-phrases like “today we would talk about ___”, “our topic is ___”, “let's discuss ___”. Keep the original topic text unchanged.
+3. If no candidate fits naturally, leave the word unchanged.
+4. Do NOT simplify fixed expressions (e.g., "ladies and gentlemen", "he's", "it's", "they're").
+5. Do NOT simplify idioms (e.g., "spill the beans", "break the ice").
+6. Keep the sentence fluent and natural after replacements.
+7. Output the simplified version of the text.
 
 Here is the text to simplify:
 {text}
