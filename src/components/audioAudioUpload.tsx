@@ -3,11 +3,11 @@
 import { analyzeAndFindCandidateWords } from '@/actions/llm/analyzeAndFindCandidateWords';
 import { segment } from '@/actions/llm/segment';
 import { simplify } from '@/actions/llm/simplify';
-import { tts } from '@/actions/llm/tts';
 import { analyzeChunks } from '@/actions/llm/utils';
+import { useKokoroModel } from '@/hooks/useKokoroModel';
 import { useStore } from '@/store';
 import { KokoroTTS } from 'kokoro-js';
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { FaQuestionCircle } from 'react-icons/fa';
 import { toast } from 'sonner';
 import AudioOptions from './AudioOptions';
@@ -58,6 +58,13 @@ export default function AudioVideoUpload({
   const setSimplifiedResult = useStore((state) => state.setSimplifiedResult);
 
   const setOriginalChunks = useStore((state) => state.setOriginalChunks);
+
+  const kokoroModel = useKokoroModel();
+
+  useEffect(() => {
+    if (!kokoroModel) return;
+    console.log('Kokoro model is loaded and ready to use:', kokoroModel);
+  }, [kokoroModel]);
 
   const onFileUpload = async (file: File | null) => {
     if (!file) return;
@@ -170,17 +177,21 @@ export default function AudioVideoUpload({
 
         const simplifiedContent = simplified.join(' ');
 
-        const ttsResp = await tts(simplifiedContent, { voice, style });
+        // const ttsResp = await tts(simplifiedContent, { voice, style });
 
-        if (!ttsResp) {
-          console.error('TTS failed');
-          toast.error('TTS failed');
-          return;
-        }
+        // if (!ttsResp) {
+        //   console.error('TTS failed');
+        //   toast.error('TTS failed');
+        //   return;
+        // }
 
-        const { url, downloadUrl } = ttsResp;
+        // const { url, downloadUrl } = ttsResp;
 
-        setSimplificationProgress('');
+        // setSimplificationProgress('');
+
+        // Using kokoro-js for TTS
+        const url = await kokoroTTS(simplifiedContent, kokoroModel);
+        const downloadUrl = url;
 
         // const url = `/api/tts?content=${encodeURIComponent(simplifiedContent)}`;
         // const url = `https://gggr3f0tgjgai8sk.public.blob.vercel-storage.com/ted1-aIKJe4NgUrJmb2e7wxFShGE3Xj6PmC.mp3`;
@@ -350,4 +361,29 @@ function Kokoro() {
       <Button onClick={generate}>Test</Button>
     </>
   );
+}
+
+async function kokoroTTS(text: string, model: KokoroTTS | null) {
+  if (!model) {
+    throw new Error('Kokoro model is not loaded yet');
+  }
+
+  const ttsStartTime = Date.now();
+  console.log('Generating audio...');
+  // Example text
+  // const text =
+  //   "Life is like a box of chocolates. You never know what you're gonna get.";
+  const audio = await model.generate(text, {
+    // Use `tts.list_voices()` to list all available voices
+    voice: 'af_heart',
+    speed: 0.7,
+  });
+  const ttsEndTime = Date.now();
+  console.log(
+    `Audio generated in ${(ttsEndTime - ttsStartTime) / 1000} seconds`
+  );
+
+  const blob = audio.toBlob();
+  const audioUrl = URL.createObjectURL(blob);
+  return audioUrl;
 }
