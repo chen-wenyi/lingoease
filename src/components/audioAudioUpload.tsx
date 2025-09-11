@@ -6,6 +6,7 @@ import { simplify } from '@/actions/llm/simplify';
 import { analyzeChunks } from '@/actions/llm/utils';
 import { useKokoroModel } from '@/hooks/useKokoroModel';
 import { useStore } from '@/store';
+import { kokoroTTSStreamWaitUrl } from '@/utils/kokoroTTSStream';
 import { KokoroTTS } from 'kokoro-js';
 import { useState, useTransition } from 'react';
 import { FaQuestionCircle } from 'react-icons/fa';
@@ -154,7 +155,8 @@ export default function AudioVideoUpload({
         // setSimplificationProgress('');
 
         // Using kokoro-js for TTS
-        const url = await kokoroTTS(simplifiedContent, kokoroModel);
+        // const url = await kokoroTTS(simplifiedContent, kokoroModel);
+        const url = await kokoroTTSStreamWaitUrl(simplifiedContent);
         const downloadUrl = url;
 
         setSimplificationProgress('');
