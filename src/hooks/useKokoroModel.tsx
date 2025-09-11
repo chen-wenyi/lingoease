@@ -39,7 +39,7 @@ export function useKokoroModel() {
         })
         .catch((err) => {
           console.error('Failed to load Kokoro model:', err);
-          toast.error('Failed to load Kokoro model. See console for details.');
+          toast.error(`Failed to load Kokoro model. ${err.message}`);
           loadPromiseRef.current = null; // allow retry
           throw err;
         });
