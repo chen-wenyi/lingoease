@@ -1,5 +1,6 @@
 import { KokoroTTS } from 'kokoro-js';
 import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 export function useKokoroModel() {
   const [model, setModel] = useState<KokoroTTS | null>(null);
@@ -38,6 +39,7 @@ export function useKokoroModel() {
         })
         .catch((err) => {
           console.error('Failed to load Kokoro model:', err);
+          toast.error('Failed to load Kokoro model. See console for details.');
           loadPromiseRef.current = null; // allow retry
           throw err;
         });
