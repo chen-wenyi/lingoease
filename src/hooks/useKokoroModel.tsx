@@ -24,7 +24,7 @@ export function useKokoroModel() {
       const startTime = Date.now();
       console.log('Loading model...');
       loadPromiseRef.current = KokoroTTS.from_pretrained(model_id, {
-        dtype: 'q8',
+        dtype: 'q4',
         device: 'webgpu',
       })
         .then((tts) => {
