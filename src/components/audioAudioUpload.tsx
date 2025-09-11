@@ -63,7 +63,7 @@ export default function AudioVideoUpload({
 
   useEffect(() => {
     if (!kokoroModel) return;
-    console.log('Kokoro model is loaded and ready to use:', kokoroModel);
+    toast.success('Kokoro model loaded and ready for TTS');
   }, [kokoroModel]);
 
   const onFileUpload = async (file: File | null) => {
