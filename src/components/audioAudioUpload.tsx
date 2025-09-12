@@ -3,10 +3,9 @@
 import { analyzeAndFindCandidateWords } from '@/actions/llm/analyzeAndFindCandidateWords';
 import { segment } from '@/actions/llm/segment';
 import { simplify } from '@/actions/llm/simplify';
+import { tts } from '@/actions/llm/tts';
 import { analyzeChunks } from '@/actions/llm/utils';
-import { useKokoroModel } from '@/hooks/useKokoroModel';
 import { useStore } from '@/store';
-import { kokoroTTSStreamWaitUrl } from '@/utils/kokoroTTSStream';
 import { KokoroTTS } from 'kokoro-js';
 import { useState, useTransition } from 'react';
 import { FaQuestionCircle } from 'react-icons/fa';
@@ -46,6 +45,9 @@ export default function AudioVideoUpload({
   const setFile = useStore((state) => state.setFile);
   const setFileUrl = useStore((state) => state.setFileUrl);
   const updateCurrentStep = useStore((state) => state.updateCurrentStep);
+  const voice = useStore((state) => state.outputOptions.voice);
+  const style = useStore((state) => state.outputOptions.style);
+  // const kokoroModel = useKokoroModel();]
   const setSimplificationProgress = useStore(
     (state) => state.setSimplificationProgress
   );
@@ -55,7 +57,7 @@ export default function AudioVideoUpload({
 
   const setOriginalChunks = useStore((state) => state.setOriginalChunks);
 
-  const kokoroModel = useKokoroModel();
+  // const kokoroModel = useKokoroModel();
 
   const onFileUpload = async (file: File | null) => {
     if (!file) return;
@@ -142,22 +144,22 @@ export default function AudioVideoUpload({
 
         const simplifiedContent = simplified.join(' ');
 
-        // const ttsResp = await tts(simplifiedContent, { voice, style });
+        const ttsResp = await tts(simplifiedContent, { voice, style });
 
-        // if (!ttsResp) {
-        //   console.error('TTS failed');
-        //   toast.error('TTS failed');
-        //   return;
-        // }
+        if (!ttsResp) {
+          console.error('TTS failed');
+          toast.error('TTS failed');
+          return;
+        }
 
-        // const { url, downloadUrl } = ttsResp;
+        const { url, downloadUrl } = ttsResp;
 
         // setSimplificationProgress('');
 
         // Using kokoro-js for TTS
         // const url = await kokoroTTS(simplifiedContent, kokoroModel);
-        const url = await kokoroTTSStreamWaitUrl(simplifiedContent);
-        const downloadUrl = url;
+        // const url = await kokoroTTSStreamWaitUrl(simplifiedContent);
+        // const downloadUrl = url;
 
         setSimplificationProgress('');
 
@@ -235,13 +237,9 @@ export default function AudioVideoUpload({
               Remove
             </Button>
           )}
-          <Button
-            className='flex-1'
-            disabled={!file || !kokoroModel}
-            onClick={startSimplify}
-          >
-            {!kokoroModel ? (
-              'Preparing Model...'
+          <Button className='flex-1' disabled={!file} onClick={startSimplify}>
+            {!file ? (
+              'Simplify'
             ) : simplifying ? (
               <span className='loading loading-dots loading-xs'></span>
             ) : (
