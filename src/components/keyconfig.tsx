@@ -11,14 +11,16 @@ import {
   DrawerTrigger,
 } from './ui/drawer';
 
-import { validateOpenAIAPIKey } from '@/actions/keyValidation';
+import { validateAPIKey } from '@/actions/keyValidation';
 import type { ApiKey } from '@/typings';
 import clsx from 'clsx';
 import { useEffect, useState, useTransition } from 'react';
 import { BiSolidError } from 'react-icons/bi';
 import { FaEyeSlash, FaPaste, FaQuestionCircle } from 'react-icons/fa';
+import { FcGoogle } from 'react-icons/fc';
 import { GrValidate } from 'react-icons/gr';
 import { IoMdEye } from 'react-icons/io';
+import { PiOpenAiLogo } from 'react-icons/pi';
 import { toast } from 'sonner';
 import {
   AlertDialog,
@@ -171,7 +173,7 @@ function SelectConfigTab() {
   const validateApiKey = async (value: string) => {
     setStatus('pending');
     startTransition(async () => {
-      const isValid = await validateOpenAIAPIKey(value);
+      const isValid = await validateAPIKey(value);
       if (!isValid) {
         toast.error('Invalid API Key. Please check your key and try again.');
       }
@@ -228,6 +230,7 @@ function SelectConfigTab() {
                   <Label className='flex items-center' htmlFor=''>
                     API Key
                     <APIKeyValidity status={status} />
+                    <Provider apikey={value || ''} />
                   </Label>
                   <Textarea
                     className={clsx('h-[115px] font-mono text-base', {
@@ -348,7 +351,7 @@ function CreateConfigTab({ closeDrawer }: { closeDrawer: () => void }) {
   const validateApiKey = async (value: string) => {
     setStatus('pending');
     startTransition(async () => {
-      const isValid = await validateOpenAIAPIKey(value);
+      const isValid = await validateAPIKey(value);
       if (!isValid) {
         toast.error('Invalid API Key. Please check your key and try again.');
       }
@@ -405,6 +408,7 @@ function CreateConfigTab({ closeDrawer }: { closeDrawer: () => void }) {
                   <Label className='flex items-center' htmlFor=''>
                     API Key
                     <APIKeyValidity status={status} />
+                    <Provider apikey={value || ''} />
                   </Label>
                   <Textarea
                     className={clsx('h-[115px] font-mono text-base', {
@@ -445,6 +449,11 @@ function CreateConfigTab({ closeDrawer }: { closeDrawer: () => void }) {
                       onClick={() => {
                         if (label && value) {
                           addApiKey(label, value);
+                          setLabel('');
+                          setValue('');
+                          setStatus('pending');
+                          setHidden(true);
+                          toast.success('API Key added. You can apply it now.');
                         }
                       }}
                     >
@@ -537,4 +546,13 @@ function APIKeyValidity({
       )}
     </div>
   );
+}
+
+function Provider({ apikey }: { apikey: string }) {
+  if (apikey.includes('AIza')) {
+    return <FcGoogle />;
+  }
+  if (apikey.includes('sk-')) {
+    return <PiOpenAiLogo />;
+  }
 }

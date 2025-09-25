@@ -1,6 +1,6 @@
 'use client';
 
-import { validateOpenAIAPIKey } from '@/actions/keyValidation';
+import { validateAPIKey } from '@/actions/keyValidation';
 import { useStore } from '@/store';
 import Cookies from 'js-cookie';
 import { useEffect } from 'react';
@@ -114,7 +114,7 @@ function useAPIKeysValidation() {
     if (activeApiKey) {
       switch (activeApiKey.status) {
         case 'pending':
-          void validateOpenAIAPIKey(activeApiKey.value).then((isValid) => {
+          void validateAPIKey(activeApiKey.value).then((isValid) => {
             updateApiKeyStatus(activeApiKeyId, isValid ? 'valid' : 'invalid');
             updateCurrentStep();
             if (!isValid) {

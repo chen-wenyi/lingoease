@@ -201,9 +201,9 @@ export default function AudioVideoUpload({
         {children}
       </DrawerTrigger>
       <DrawerContent
-        onInteractOutside={(e) => {
-          e.preventDefault();
-        }}
+      // onInteractOutside={(e) => {
+      //   e.preventDefault();
+      // }}
       >
         <DrawerHeader>
           <DrawerTitle className='flex items-center justify-center gap-2'>
