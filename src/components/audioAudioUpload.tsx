@@ -56,6 +56,7 @@ export default function AudioVideoUpload({
   const setSimplifiedResult = useStore((state) => state.setSimplifiedResult);
 
   const setOriginalChunks = useStore((state) => state.setOriginalChunks);
+  const contextWindowSize = useStore((state) => state.contextWindowSize);
 
   // const kokoroModel = useKokoroModel();
 
@@ -130,7 +131,8 @@ export default function AudioVideoUpload({
             text,
             newWords,
           })),
-          analysisRes.candidateMap
+          analysisRes.candidateMap,
+          contextWindowSize
         );
         console.log('------------- simplified ------------- ');
         console.log(simplified);

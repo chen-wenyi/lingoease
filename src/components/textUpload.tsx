@@ -39,6 +39,7 @@ export default function TextUpload({
     (state) => state.setSimplificationProgress
   );
   const setOriginalChunks = useStore((state) => state.setOriginalChunks);
+  const contextWindowSize = useStore((state) => state.contextWindowSize);
 
   const [simplifying, startSimplifyTransition] = useTransition();
 
@@ -78,7 +79,8 @@ export default function TextUpload({
             text,
             newWords,
           })),
-          analysisRes.candidateMap
+          analysisRes.candidateMap,
+          contextWindowSize
         );
         console.log('------------- simplified ------------- ');
         console.log(simplified);

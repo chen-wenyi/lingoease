@@ -17,6 +17,7 @@ export type ConfigSlice = {
   file: File | null;
   fileUrl: string;
   outputOptions: OutputOptions;
+  contextWindowSize: number;
   simplificationProgress: {
     message: SimplificationProgressMessage;
     number: number;
@@ -65,6 +66,7 @@ export type ConfigSlice = {
   setSimplificationProgress: (message: SimplificationProgressMessage) => void;
   setOriginalChunks: (chunks: { text: string; newWords: string[] }[]) => void;
   setOutputOptions: (opts: Partial<OutputOptions>) => void;
+  setContextWindowSize: (size: number) => void;
   selectedModel: string;
   setSelectedModel: (model: string) => void;
 };

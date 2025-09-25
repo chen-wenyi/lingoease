@@ -128,6 +128,10 @@ export default function AudioOptions() {
             );
           })()}
         </div>
+
+        {/* Context Window Size */}
+        <ContextWindowSelector />
+
         {isDevMode && <ModelSelector />}
       </div>
     </div>
@@ -160,8 +164,6 @@ function ModelSelector() {
     'gemini-2.5-flash',
     'gemini-2.5-flash-lite',
     'gemini-2.0-flash',
-    'gemini-1.5-flash',
-    'gemini-1.5-pro',
   ];
 
   let modelOptions: string[] | undefined;
@@ -182,13 +184,41 @@ function ModelSelector() {
         value={selectedModel || ''}
         onValueChange={(v) => setSelectedModel(v)}
       >
-        <SelectTrigger className='min-w-40 capitalize'>
+        <SelectTrigger className='min-w-40'>
           <SelectValue placeholder='Select a model' />
         </SelectTrigger>
         <SelectContent>
           {modelOptions.map((m) => (
-            <SelectItem key={m} value={m} className='capitalize'>
+            <SelectItem key={m} value={m}>
               {m}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
+function ContextWindowSelector() {
+  const contextWindowSize = useStore((s) => s.contextWindowSize);
+  const setContextWindowSize = useStore((s) => s.setContextWindowSize);
+
+  return (
+    <div className='grid grid-cols-[9rem_auto] items-center justify-items-start'>
+      <div className='w-32 shrink-0'>
+        <Label className='text-sm text-left font-bold'>Context Window</Label>
+      </div>
+      <Select
+        value={contextWindowSize.toString()}
+        onValueChange={(v) => setContextWindowSize(parseInt(v))}
+      >
+        <SelectTrigger className='min-w-40'>
+          <SelectValue placeholder='Select context window size' />
+        </SelectTrigger>
+        <SelectContent>
+          {[1, 2, 3, 4, 5].map((size) => (
+            <SelectItem key={size} value={size.toString()}>
+              {size} sentence{size > 1 ? 's' : ''}
             </SelectItem>
           ))}
         </SelectContent>

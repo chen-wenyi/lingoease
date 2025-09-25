@@ -11,8 +11,8 @@ export async function validateAPIKey(apiKey: string) {
     const client = new GoogleGenAI({ apiKey });
     try {
       const { text } = await client.models.generateContent({
-        model: 'gemini-1.5-flash',
-        contents: 'Explain how AI works in a few words',
+        model: 'gemini-2.5-flash-lite',
+        contents: 'Hello world',
       });
       if (text && text.length > 0) {
         return true;

@@ -12,7 +12,8 @@ import { cookies } from 'next/headers';
 export async function simplify(
   model: string,
   chunks: { text: string; newWords: string[] }[],
-  candidateMap: Record<string, string[]>
+  candidateMap: Record<string, string[]>,
+  contextWindowSize: number = 1
 ) {
   const apiKey = (await cookies()).get('api-key')?.value;
 
@@ -50,6 +51,9 @@ Your task:
 Text to simplify:
 {text}
 
+Context:
+{context}
+
 New Word List:
 {newWordsList}
 
@@ -67,11 +71,19 @@ Please provide the simplified text.`;
   const simplifyStartTime = performance.now();
 
   const all = Promise.all(
-    chunks.map((chunk) =>
-      chunk.newWords.length > 0
-        ? simplifySingle(chain, chunk.text, chunk.newWords, candidateMap)
-        : Promise.resolve(chunk.text)
-    )
+    chunks.map((chunk, idx) => {
+      const { prev, next } = getContext(chunks, idx, contextWindowSize);
+      const context = `Previous sentence: ${prev}\nNext sentence: ${next}`;
+      return chunk.newWords.length > 0
+        ? simplifySingle(
+            chain,
+            chunk.text,
+            context,
+            chunk.newWords,
+            candidateMap
+          )
+        : Promise.resolve(chunk.text);
+    })
   );
 
   const simplifyEndTime = performance.now();
@@ -87,6 +99,7 @@ Please provide the simplified text.`;
 async function simplifySingle(
   chain: RunnableSequence<unknown, string>,
   text: string,
+  context: string,
   newWords: string[],
   candidateMap: Record<string, string[]>
 ) {
@@ -100,8 +113,41 @@ async function simplifySingle(
   });
 
   console.log('---- simplify start --- ');
-  const response = await chain.invoke({ text, newWordsList, candidateList });
+  const response = await chain.invoke({
+    text,
+    context,
+    newWordsList,
+    candidateList,
+  });
   console.log('---- simplify end --- ');
 
   return response;
+}
+
+function getContext(
+  chunks: { text: string }[],
+  index: number,
+  contextSize = 1
+) {
+  // Get previous sentences based on contextSize
+  const prevSentences: string[] = [];
+  for (let i = 1; i <= contextSize; i++) {
+    const prevChunk = chunks[index - i];
+    if (prevChunk) {
+      prevSentences.unshift(prevChunk.text);
+    }
+  }
+  const prev = prevSentences.join(' ');
+
+  // Get next sentences based on contextSize
+  const nextSentences: string[] = [];
+  for (let i = 1; i <= contextSize; i++) {
+    const nextChunk = chunks[index + i];
+    if (nextChunk) {
+      nextSentences.push(nextChunk.text);
+    }
+  }
+  const next = nextSentences.join(' ');
+
+  return { prev, next };
 }
