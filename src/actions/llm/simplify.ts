@@ -13,7 +13,7 @@ export async function simplify(
   model: string,
   chunks: { text: string; newWords: string[] }[],
   candidateMap: Record<string, string[]>,
-  contextWindowSize: number = 1
+  contextWindowSize: number
 ) {
   const apiKey = (await cookies()).get('api-key')?.value;
 
@@ -127,7 +127,7 @@ async function simplifySingle(
 function getContext(
   chunks: { text: string }[],
   index: number,
-  contextSize = 1
+  contextSize: number
 ) {
   // Get previous sentences based on contextSize
   const prevSentences: string[] = [];

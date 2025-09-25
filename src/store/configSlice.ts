@@ -27,7 +27,7 @@ export const createConfigSlice: StateCreator<
     voice: 'alloy',
     style: OUTPUT_STYLES[0],
   } satisfies OutputOptions,
-  contextWindowSize: 1,
+  contextWindowSize: 3,
   selectedModel: '',
   setSelectedModel: (model) => {
     set((state) => {
