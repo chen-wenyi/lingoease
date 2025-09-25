@@ -129,10 +129,8 @@ export default function AudioOptions() {
           })()}
         </div>
 
-        {/* Context Window Size */}
-        <ContextWindowSelector />
-
         {isDevMode && <ModelSelector />}
+        {isDevMode && <ContextWindowSelector />}
       </div>
     </div>
   );
