@@ -34,7 +34,7 @@ export default function AudioPlayer({
   crossOrigin = 'anonymous',
   className = '',
   type = 'audio/mpeg',
-  debug = true,
+  debug = false,
 }: {
   src: string;
   title?: string;

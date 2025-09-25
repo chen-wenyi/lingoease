@@ -8,7 +8,13 @@ export const createConfigSlice: StateCreator<
   [['zustand/immer', never]],
   [],
   ConfigSlice
-> = (set, _) => ({
+> = (set) => ({
+  development: false,
+  setDevelopment: (dev) => {
+    set((state) => {
+      state.development = dev;
+    });
+  },
   activeApiKeyId: '',
   apikeys: [],
   currentStep: 0,
@@ -21,6 +27,12 @@ export const createConfigSlice: StateCreator<
     voice: 'alloy',
     style: OUTPUT_STYLES[0],
   } satisfies OutputOptions,
+  selectedModel: '',
+  setSelectedModel: (model) => {
+    set((state) => {
+      state.selectedModel = model;
+    });
+  },
   originalChunks: [],
   simplifiedResult: null,
   simplificationProgress: {

@@ -12,6 +12,7 @@ import {
 } from './ui/drawer';
 
 import { validateAPIKey } from '@/actions/keyValidation';
+import { getProviderFromApiKey } from '@/lib/utils';
 import type { ApiKey } from '@/typings';
 import clsx from 'clsx';
 import { useEffect, useState, useTransition } from 'react';
@@ -67,12 +68,7 @@ export default function Keyconfig({ children }: { children: React.ReactNode }) {
       <DrawerTrigger className='cursor-pointer' asChild>
         {children}
       </DrawerTrigger>
-      <DrawerContent
-        onInteractOutside={(e) => {
-          console.log(e);
-          e.preventDefault();
-        }}
-      >
+      <DrawerContent>
         <DrawerHeader>
           <DrawerTitle className='flex items-center justify-center gap-2'>
             OpenAI APIKey Setting
@@ -549,10 +545,12 @@ function APIKeyValidity({
 }
 
 function Provider({ apikey }: { apikey: string }) {
-  if (apikey.includes('AIza')) {
+  const provider = getProviderFromApiKey(apikey);
+
+  if (provider === 'google') {
     return <FcGoogle />;
   }
-  if (apikey.includes('sk-')) {
+  if (provider === 'openai') {
     return <PiOpenAiLogo />;
   }
 }

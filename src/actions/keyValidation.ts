@@ -1,10 +1,13 @@
 'use server';
 
+import { getProviderFromApiKey } from '@/lib/utils';
 import { GoogleGenAI } from '@google/genai';
 import OpenAI, { APIError } from 'openai';
 
 export async function validateAPIKey(apiKey: string) {
-  if (apiKey.includes('AIza')) {
+  const provider = getProviderFromApiKey(apiKey);
+
+  if (provider === 'google') {
     const client = new GoogleGenAI({ apiKey });
     try {
       const { text } = await client.models.generateContent({
@@ -27,7 +30,7 @@ export async function validateAPIKey(apiKey: string) {
       }
       return false;
     }
-  } else if (apiKey.includes('sk-')) {
+  } else if (provider === 'openai') {
     const client = new OpenAI({ apiKey });
     try {
       const models = await client.models.list();

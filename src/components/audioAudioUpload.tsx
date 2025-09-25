@@ -6,7 +6,6 @@ import { simplify } from '@/actions/llm/simplify';
 import { tts } from '@/actions/llm/tts';
 import { analyzeChunks } from '@/actions/llm/utils';
 import { useStore } from '@/store';
-import { KokoroTTS } from 'kokoro-js';
 import { useState, useTransition } from 'react';
 import { FaQuestionCircle } from 'react-icons/fa';
 import { toast } from 'sonner';
@@ -39,6 +38,7 @@ export default function AudioVideoUpload({
 }: {
   children: React.ReactNode;
 }) {
+  const model = useStore((s) => s.selectedModel);
   const [isOpen, setIsOpen] = useState(false);
   const wordFreq = useStore((state) => state.outputOptions.level.wordFreq);
   const file = useStore((state) => state.file);
@@ -125,6 +125,7 @@ export default function AudioVideoUpload({
         setSimplificationProgress('Simplifying the scripts...');
 
         const simplified = await simplify(
+          model,
           analysisRes.analyzedChunks.map(({ text, newWords }) => ({
             text,
             newWords,
@@ -271,29 +272,4 @@ function Instructions() {
       </AlertDialogContent>
     </AlertDialog>
   );
-}
-
-async function kokoroTTS(text: string, model: KokoroTTS | null) {
-  if (!model) {
-    throw new Error('Kokoro model is not loaded yet');
-  }
-
-  const ttsStartTime = Date.now();
-  console.log('Generating audio...');
-  // Example text
-  // const text =
-  //   "Life is like a box of chocolates. You never know what you're gonna get.";
-  const audio = await model.generate(text, {
-    // Use `tts.list_voices()` to list all available voices
-    voice: 'am_adam',
-    speed: 0.7,
-  });
-  const ttsEndTime = Date.now();
-  console.log(
-    `Audio generated in ${(ttsEndTime - ttsStartTime) / 1000} seconds`
-  );
-
-  const blob = audio.toBlob();
-  const audioUrl = URL.createObjectURL(blob);
-  return audioUrl;
 }

@@ -26,6 +26,7 @@ export default function TextUpload({
 }: {
   children: React.ReactNode;
 }) {
+  const model = useStore((s) => s.selectedModel);
   const wordFreq = useStore((state) => state.outputOptions.level.wordFreq);
   const voice = useStore((state) => state.outputOptions.voice);
   const style = useStore((state) => state.outputOptions.style);
@@ -42,55 +43,6 @@ export default function TextUpload({
   const [simplifying, startSimplifyTransition] = useTransition();
 
   const [isOpen, setIsOpen] = useState(false);
-
-  // const startSimplify = async () => {
-  //   updateCurrentStep();
-  //   startSimplifyTransition(async () => {
-  //     const chunks = await segment(content);
-
-  //     console.log('chunks:');
-  //     console.log('------------- chunks ------------- ');
-  //     console.log(chunks);
-
-  //     // Analyze the chunks
-  //     const analysisRes = await analyzeAndFindCandidateWords(chunks, wordFreq);
-  //     console.log('------------- analysis ------------- ');
-  //     console.log(analysisRes);
-
-  //     const simplified = await simplify(
-  //       analysisRes.analyzedChunks.map(({ text, newWords }) => ({
-  //         text,
-  //         newWords,
-  //       })),
-  //       analysisRes.candidateMap
-  //     );
-  //     console.log('------------- simplified ------------- ');
-  //     console.log(simplified);
-
-  //     console.log('------------- analyzeSimplified ------------- ');
-
-  //     const analyzedSimplifiedChunks = analyzeChunks(simplified, wordFreq);
-  //     console.log(analyzedSimplifiedChunks);
-
-  //     console.log('------------- tts... ------------- ');
-  //     const ttsResp = await tts(simplified.join(' '), { voice, style });
-
-  //     if (ttsResp) {
-  //       const { url, downloadUrl } = ttsResp;
-
-  //       setIsOpen(false);
-  //       setSimplifiedResult({
-  //         url,
-  //         downloadUrl,
-  //         simplifiedText: analyzedSimplifiedChunks.analyzedChunks,
-  //         totalLemmasCount: analyzedSimplifiedChunks.totalLemmasCount,
-  //         totalNewWordsCount: analyzedSimplifiedChunks.totalNewWordsCount,
-  //         newWordsRate: analyzedSimplifiedChunks.newWordsRate,
-  //       });
-  //       updateCurrentStep();
-  //     }
-  //   });
-  // };
 
   const startSimplify = () => {
     updateCurrentStep();
@@ -121,6 +73,7 @@ export default function TextUpload({
         setSimplificationProgress('Simplifying the scripts...');
 
         const simplified = await simplify(
+          model,
           analysisRes.analyzedChunks.map(({ text, newWords }) => ({
             text,
             newWords,

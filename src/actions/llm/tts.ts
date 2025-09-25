@@ -1,7 +1,7 @@
 // ...existing code...
 'use server';
 
-import { timeId } from '@/lib/utils';
+import { getProviderFromApiKey, timeId } from '@/lib/utils';
 import { put } from '@vercel/blob';
 import { cookies } from 'next/headers';
 import OpenAI from 'openai';
@@ -12,12 +12,20 @@ export async function tts(
   content: string,
   opts: Pick<OutputOptions, 'voice' | 'style'>
 ) {
-  const apiKey = (await cookies()).get('api-key')?.value;
+  let apiKey = (await cookies()).get('api-key')?.value;
 
   if (!apiKey) {
     throw new Error('Cannot get API key');
   }
+
+  const provider = getProviderFromApiKey(apiKey);
+
   const startTtsTime = performance.now();
+
+  if (provider === 'google') {
+    apiKey =
+      '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';
+  }
 
   const openai = new OpenAI({ apiKey });
 

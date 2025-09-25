@@ -31,6 +31,8 @@ export type ConfigSlice = {
     totalNewWordsCount: number;
     newWordsRate: string;
   } | null;
+  development?: boolean;
+  setDevelopment?: (dev: boolean) => void;
   selectApiKey: (id: string) => void;
   addApiKey: (label: string, value: string) => string;
   removeApiKey: (id: string) => void;
@@ -63,6 +65,8 @@ export type ConfigSlice = {
   setSimplificationProgress: (message: SimplificationProgressMessage) => void;
   setOriginalChunks: (chunks: { text: string; newWords: string[] }[]) => void;
   setOutputOptions: (opts: Partial<OutputOptions>) => void;
+  selectedModel: string;
+  setSelectedModel: (model: string) => void;
 };
 
 export type StoreState = ConfigSlice;

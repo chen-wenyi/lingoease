@@ -1,12 +1,16 @@
 'use server';
 
+import { getProviderFromApiKey } from '@/lib/utils';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { RunnableSequence } from '@langchain/core/runnables';
+import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { ChatOpenAI } from '@langchain/openai';
+
 import { cookies } from 'next/headers';
 
 export async function simplify(
+  model: string,
   chunks: { text: string; newWords: string[] }[],
   candidateMap: Record<string, string[]>
 ) {
@@ -16,10 +20,18 @@ export async function simplify(
     throw new Error('Cannot get API key');
   }
 
-  const model = new ChatOpenAI({
-    apiKey,
-    model: 'gpt-5-nano',
-  });
+  const provider = getProviderFromApiKey(apiKey);
+
+  const llm =
+    provider === 'google'
+      ? new ChatGoogleGenerativeAI({
+          model: model || 'gemini-2.5-flash',
+          apiKey,
+        })
+      : new ChatOpenAI({
+          apiKey,
+          model: model || 'gpt-5-mini',
+        });
 
   const systemTemplate = `
 You are a careful text simplifier. Use only the provided candidate meanings to simplify the target words when it truly improves clarity without changing the author's intent.
@@ -32,8 +44,10 @@ Your task:
 6. Do NOT simplify idioms (e.g., "spill the beans", "break the ice").
 7. Keep the sentence fluent and natural after replacements.
 8. Output the simplified version of the text.
+`;
 
-Here is the text to simplify:
+  const humanTemplate = `
+Text to simplify:
 {text}
 
 New Word List:
@@ -41,14 +55,14 @@ New Word List:
 
 Candidate List:
 {candidateList}
-`;
 
-  const prompt = ChatPromptTemplate.fromMessages([['system', systemTemplate]]);
-  const chain = RunnableSequence.from([
-    prompt,
-    model,
-    new StringOutputParser(),
+Please provide the simplified text.`;
+
+  const prompt = ChatPromptTemplate.fromMessages([
+    ['system', systemTemplate],
+    ['human', humanTemplate],
   ]);
+  const chain = RunnableSequence.from([prompt, llm, new StringOutputParser()]);
 
   const simplifyStartTime = performance.now();
 

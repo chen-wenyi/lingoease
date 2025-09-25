@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { getProviderFromApiKey } from '@/lib/utils';
 import { useStore } from '@/store';
 import {
   OUTPUT_LEVELS,
@@ -26,6 +27,7 @@ export default function AudioOptions() {
   const voice = useStore((s) => s.outputOptions.voice);
   const setOutputOptions = useStore((s) => s.setOutputOptions);
   const outputStyle = useStore((s) => s.outputOptions.style as OutputStyle);
+  const isDevMode = useStore((s) => s.development);
 
   // Fixed-width label container to keep left column aligned
   const LabelCell: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -126,7 +128,71 @@ export default function AudioOptions() {
             );
           })()}
         </div>
+        {isDevMode && <ModelSelector />}
       </div>
+    </div>
+  );
+}
+
+function ModelSelector() {
+  const apikeys = useStore((state) => state.apikeys);
+  const activeApiKeyId = useStore((state) => state.activeApiKeyId);
+  const activeApiKey = apikeys.find((key) => key.id === activeApiKeyId);
+  const provider = activeApiKey
+    ? getProviderFromApiKey(activeApiKey.value)
+    : undefined;
+  const selectedModel = useStore((state) => state.selectedModel);
+  const setSelectedModel = useStore((state) => state.setSelectedModel);
+
+  // Example model lists
+  const openaiModels = [
+    'gpt-5',
+    'gpt-5-mini',
+    'gpt-5-nano',
+    'gpt-4.1',
+    'gpt-4.1-mini',
+    'gpt-4.1-nano',
+    'gpt-4o',
+    'gpt-3.5-turbo',
+  ];
+  const geminiModels = [
+    'gemini-2.5-pro',
+    'gemini-2.5-flash',
+    'gemini-2.5-flash-lite',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash',
+    'gemini-1.5-pro',
+  ];
+
+  let modelOptions: string[] | undefined;
+  if (provider === 'openai') {
+    modelOptions = openaiModels;
+  } else if (provider === 'google') {
+    modelOptions = geminiModels;
+  }
+
+  if (!provider || !modelOptions || modelOptions.length === 0) return null;
+
+  return (
+    <div className='grid grid-cols-[9rem_auto] items-center justify-items-start'>
+      <div className='w-32 shrink-0'>
+        <Label className='text-sm text-left font-bold'>Model</Label>
+      </div>
+      <Select
+        value={selectedModel || ''}
+        onValueChange={(v) => setSelectedModel(v)}
+      >
+        <SelectTrigger className='min-w-40 capitalize'>
+          <SelectValue placeholder='Select a model' />
+        </SelectTrigger>
+        <SelectContent>
+          {modelOptions.map((m) => (
+            <SelectItem key={m} value={m} className='capitalize'>
+              {m}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }

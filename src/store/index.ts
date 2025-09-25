@@ -2,9 +2,13 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { createConfigSlice } from './configSlice';
-import type { StoreState } from './typing';
+import type {
+  OutputLevel,
+  OutputStyle,
+  OutputVoice,
+  StoreState,
+} from './typing';
 import { OUTPUT_LEVELS, OUTPUT_STYLES } from './typing';
-import type { OutputLevel, OutputStyle, OutputVoice } from './typing';
 
 export const useStore = create<StoreState>()(
   persist(
@@ -18,6 +22,7 @@ export const useStore = create<StoreState>()(
         apikeys: state.apikeys,
         uploadContentType: state.uploadContentType,
         outputOptions: state.outputOptions,
+        selectedModel: state.selectedModel,
       }),
       merge: (persistedState, currentState) => {
         if (!persistedState || typeof persistedState !== 'object') {
@@ -41,7 +46,8 @@ export const useStore = create<StoreState>()(
 
         // Safely read possible persisted outputOptions of unknown shape
         const poUnknown: unknown =
-          isRecord(typedPersistedState) && 'outputOptions' in typedPersistedState
+          isRecord(typedPersistedState) &&
+          'outputOptions' in typedPersistedState
             ? (typedPersistedState as Record<string, unknown>).outputOptions
             : undefined;
 
@@ -57,12 +63,14 @@ export const useStore = create<StoreState>()(
           const styleVal = poUnknown.style;
           if (typeof styleVal === 'string') {
             const found: OutputStyle =
-              OUTPUT_STYLES.find((s) => s.name === styleVal) ?? OUTPUT_STYLES[0];
+              OUTPUT_STYLES.find((s) => s.name === styleVal) ??
+              OUTPUT_STYLES[0];
             next.style = found;
           } else if (isRecord(styleVal)) {
             const name = typeof styleVal.name === 'string' ? styleVal.name : '';
-            const hasInstruction = typeof (styleVal as { instruction?: unknown })
-              .instruction === 'string';
+            const hasInstruction =
+              typeof (styleVal as { instruction?: unknown }).instruction ===
+              'string';
             if (name && !hasInstruction) {
               const found: OutputStyle =
                 OUTPUT_STYLES.find((s) => s.name === name) ?? OUTPUT_STYLES[0];
@@ -74,10 +82,12 @@ export const useStore = create<StoreState>()(
           const levelVal = poUnknown.level;
           if (typeof levelVal === 'string') {
             const found: OutputLevel =
-              OUTPUT_LEVELS.find((l) => l.level === levelVal) ?? OUTPUT_LEVELS[0];
+              OUTPUT_LEVELS.find((l) => l.level === levelVal) ??
+              OUTPUT_LEVELS[0];
             next.level = found;
           } else if (isRecord(levelVal)) {
-            const lvl = typeof levelVal.level === 'string' ? levelVal.level : '';
+            const lvl =
+              typeof levelVal.level === 'string' ? levelVal.level : '';
             const hasWordFreq =
               typeof (levelVal as { wordFreq?: unknown }).wordFreq === 'number';
             if (lvl && !hasWordFreq) {
