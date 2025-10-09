@@ -35,9 +35,7 @@
 
 ## Demo
 
-Watch LingoEase in action! This demo video showcases the complete workflow from text/audio input to simplified output with audio generation.
-
-[![LingoEase Demo](https://img.youtube.com/vi/placeholder/maxresdefault.jpg)](https://drive.google.com/file/d/1hXZlHEOW1EkOaKh9BUZHi6P61h7Okleu/view?usp=drive_link)
+Watch LingoEase in action! This demo video showcases the complete workflow from audio input to simplified output with audio generation.
 
 **🎥 [View Demo Video](https://drive.google.com/file/d/1hXZlHEOW1EkOaKh9BUZHi6P61h7Okleu/view?usp=drive_link)**
 
