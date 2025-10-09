@@ -222,7 +222,11 @@ export default function AudioVideoUpload({
                 <source src={URL.createObjectURL(file)} type={file.type} />
                 Your browser does not support the audio element.
               </audio> */}
-              <AudioPlayer src={URL.createObjectURL(file)} title={file.name} />
+              <AudioPlayer
+                src={URL.createObjectURL(file)}
+                title={file.name}
+                type={file.type}
+              />
             </div>
           ) : (
             <UploadMedia onChange={onFileUpload} />
