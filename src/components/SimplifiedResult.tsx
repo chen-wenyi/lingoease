@@ -137,7 +137,11 @@ function OriginalTabContent() {
           </span>
         </div>
         <div className='flex  flex-col text-md mb-4 flex-1 w-full gap-4'>
-          <AudioPlayer src={URL.createObjectURL(file)} title={file.name} />
+          <AudioPlayer
+            src={URL.createObjectURL(file)}
+            title={file.name}
+            type={file.type}
+          />
 
           <div className='h-[calc(100dvh-30rem)] w-full rounded-md p-4 overflow-y-auto overscroll-none'>
             {analysedText?.analyzedChunks.map(
