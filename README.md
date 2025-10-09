@@ -454,16 +454,6 @@ src/
 - Use TypeScript for all new code
 - Follow React best practices
 - Use Tailwind CSS for styling
-- Implement proper error handling
-- Add JSDoc comments for complex functions
-
-### Testing
-
-- Test API key validation
-- Test file upload functionality
-- Test simplification accuracy
-- Test audio generation quality
-- Test responsive design
 
 ## Deployment
 
