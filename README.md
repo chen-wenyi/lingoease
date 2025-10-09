@@ -3,17 +3,18 @@
 ## Table of Contents
 
 1. [Project Overview](#project-overview)
-2. [Features](#features)
-3. [Architecture](#architecture)
-4. [Technology Stack](#technology-stack)
-5. [Installation & Setup](#installation--setup)
-6. [Configuration](#configuration)
-7. [API Documentation](#api-documentation)
-8. [Core Components](#core-components)
-9. [Workflow](#workflow)
-10. [Development Guide](#development-guide)
-11. [Deployment](#deployment)
-12. [Limitations](#limitations)
+2. [Demo](#demo)
+3. [Features](#features)
+4. [Architecture](#architecture)
+5. [Technology Stack](#technology-stack)
+6. [Installation & Setup](#installation--setup)
+7. [Configuration](#configuration)
+8. [API Documentation](#api-documentation)
+9. [Core Components](#core-components)
+10. [Workflow](#workflow)
+11. [Development Guide](#development-guide)
+12. [Deployment](#deployment)
+13. [Limitations](#limitations)
 
 ## Project Overview
 
@@ -31,6 +32,23 @@
 - Text-to-speech generation with multiple voice options
 - Vocabulary analysis and coverage metrics
 - Support for multiple AI providers (OpenAI, Google)
+
+## Demo
+
+Watch LingoEase in action! This demo video showcases the complete workflow from text/audio input to simplified output with audio generation.
+
+[![LingoEase Demo](https://img.youtube.com/vi/placeholder/maxresdefault.jpg)](https://drive.google.com/file/d/1hXZlHEOW1EkOaKh9BUZHi6P61h7Okleu/view?usp=drive_link)
+
+**🎥 [View Demo Video](https://drive.google.com/file/d/1hXZlHEOW1EkOaKh9BUZHi6P61h7Okleu/view?usp=drive_link)**
+
+The demo demonstrates:
+
+- API key configuration for different providers
+- Audio file upload
+- Real-time text simplification process
+- Vocabulary analysis and word highlighting
+- Multi-voice audio generation
+- Before/after comparison features
 
 ## Features
 
