@@ -48,6 +48,9 @@ The demo demonstrates:
 - Multi-voice audio generation
 - Before/after comparison features
 
+### Workflow
+![workflow](/public/lingoease-workflow.png)
+
 ## Features
 
 ### Core Features
